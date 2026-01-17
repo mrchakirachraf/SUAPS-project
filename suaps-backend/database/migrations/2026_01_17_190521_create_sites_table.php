@@ -13,8 +13,16 @@ return new class extends Migration
     {
         Schema::create('sites', function (Blueprint $table) {
             $table->id();
-            $table->string('nom');
+            
+            $table->enum('nom', [
+                'Calais',
+                'Boulogne-sur-mer',
+                'Dunkerque',
+                'Saint-Omer'
+            ]);
+
             $table->timestamps();
+
         });
     }
 

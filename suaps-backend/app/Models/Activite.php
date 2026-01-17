@@ -17,13 +17,18 @@ class Activite extends Model
         'lieu',
         'quota_etudiant',
         'quota_personnel',
+        'date_limite_inscription_s1',
+        'date_limite_note_s1',
+        'date_limite_inscription_s2',
+        'date_limite_note_s2',
         'statut',
         'visible',
         'categorie_id',
         'site_id',
         'type_evenement_id',
-        'personnel_id',
+        'moniteur_id',
     ];
+
 
     public function categorie() {
         return $this->belongsTo(Categorie::class);
@@ -37,9 +42,11 @@ class Activite extends Model
         return $this->belongsTo(TypeEvenement::class);
     }
 
-    public function personnel() {
-        return $this->belongsTo(Personnel::class);
+    public function moniteur()
+    {
+        return $this->belongsTo(Moniteur::class);
     }
+
 
     public function inscriptions() {
         return $this->hasMany(Inscription::class);

@@ -13,13 +13,25 @@ class Evaluation extends Model
         'note',
         'etudiant_id',
         'activite_id',
+        'moniteur_id',
     ];
 
-    public function etudiant() {
+    /* =====================
+       Relations
+    ===================== */
+
+    public function etudiant()
+    {
         return $this->belongsTo(Etudiant::class);
     }
 
-    public function activite() {
+    public function activite()
+    {
         return $this->belongsTo(Activite::class);
+    }
+
+    public function moniteur()
+    {
+        return $this->belongsTo(Moniteur::class);
     }
 }

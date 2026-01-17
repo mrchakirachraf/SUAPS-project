@@ -24,14 +24,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
-            // Rôle utilisateur
-            $table->enum('role', [
-                'etudiant',
-                'personnel',
-                'moniteur',
-                'suaps',
-                'admin'
-            ]);
 
             $table->rememberToken();
             $table->timestamps();

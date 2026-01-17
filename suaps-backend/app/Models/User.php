@@ -46,43 +46,25 @@ class User extends Authenticatable
        Relations
     ============================ */
 
-    /**
-     * Relation vers le profil étudiant
-     */
+
     public function etudiant()
     {
         return $this->hasOne(Etudiant::class);
     }
 
-    /**
-     * Relation vers le profil personnel / moniteur
-     */
+    public function moniteur()
+    {
+        return $this->hasOne(Moniteur::class);
+    }
+
     public function personnel()
     {
         return $this->hasOne(Personnel::class);
     }
 
-    /* ============================
-       Helpers rôles (TRÈS UTILE)
-    ============================ */
-
-    public function isEtudiant(): bool
+    public function suaps()
     {
-        return $this->role === 'etudiant';
+        return $this->hasOne(Suaps::class);
     }
 
-    public function isPersonnel(): bool
-    {
-        return in_array($this->role, ['personnel', 'moniteur']);
-    }
-
-    public function isSuaps(): bool
-    {
-        return $this->role === 'suaps';
-    }
-
-    public function isAdmin(): bool
-    {
-        return $this->role === 'admin';
-    }
 }
