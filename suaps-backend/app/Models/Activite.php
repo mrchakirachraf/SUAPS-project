@@ -47,6 +47,11 @@ class Activite extends Model
         return $this->belongsTo(Moniteur::class);
     }
 
+    public function evaluations()
+    {
+        return $this->hasMany(Evaluation::class);
+    }
+
 
     public function inscriptions() {
         return $this->hasMany(Inscription::class);

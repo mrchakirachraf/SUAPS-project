@@ -16,7 +16,6 @@ return new class extends Migration
 
             $table->string('chemin');
             $table->string('type');
-            $table->date('date_creation');
 
             $table->foreignId('etudiant_id')->constrained();
 

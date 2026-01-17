@@ -20,7 +20,6 @@ class User extends Authenticatable
         'prenom',
         'email',
         'password',
-        'role',
     ];
 
     /**
@@ -62,9 +61,6 @@ class User extends Authenticatable
         return $this->hasOne(Personnel::class);
     }
 
-    public function suaps()
-    {
-        return $this->hasOne(Suaps::class);
-    }
+    
 
 }

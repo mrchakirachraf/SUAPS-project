@@ -12,7 +12,6 @@ class Document extends Model
     protected $fillable = [
         'chemin',
         'type',
-        'date_creation',
         'etudiant_id',
     ];
 

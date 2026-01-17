@@ -24,6 +24,7 @@ return new class extends Migration
             $table->foreignId('activite_id')->constrained();
 
             $table->timestamps();
+            $table->unique(['etudiant_id', 'activite_id']);
         });
     }
 

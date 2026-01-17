@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('moniteurs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->unique('user_id');
             // Héritage métier
             $table->boolean('is_suaps')->default(false);
             $table->timestamps();

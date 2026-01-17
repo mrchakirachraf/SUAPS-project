@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('evaluations', function (Blueprint $table) {
             $table->id();
 
-            $table->float('note')->nullable();
+            $table->decimal('note', 4, 2)->nullable();
             
             $table->foreignId('moniteur_id')->constrained('moniteurs');
             $table->foreignId('etudiant_id')->constrained();
