@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
+
 class Inscription extends Model
 {
     use HasFactory;
@@ -20,6 +21,11 @@ class Inscription extends Model
 
     public function etudiant() {
         return $this->belongsTo(Etudiant::class);
+    }
+
+    public function moniteur()
+    {
+        return $this->belongsTo(Moniteur::class);
     }
 
     public function activite() {

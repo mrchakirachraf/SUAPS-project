@@ -20,6 +20,7 @@ return new class extends Migration
             $table->enum('statut', ['en_cours', 'valide', 'refuse'])->default('en_cours');
             $table->string('num_tel_etud')->nullable();
 
+            $table->foreignId('moniteur_id')->constrained('moniteurs');
             $table->foreignId('etudiant_id')->constrained();
             $table->foreignId('activite_id')->constrained();
 
