@@ -20,6 +20,8 @@ class Moniteur extends Model
         'is_suaps' => 'boolean',
     ];
 
+
+    
     /* =====================
        Relations
     ===================== */
