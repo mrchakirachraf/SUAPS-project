@@ -21,7 +21,7 @@ class Moniteur extends Model
     ];
 
 
-    
+
     /* =====================
        Relations
     ===================== */
@@ -37,6 +37,11 @@ class Moniteur extends Model
     public function activites()
     {
         return $this->hasMany(Activite::class);
+    }
+
+    public function inscriptions()
+    {
+        return $this->hasMany(Inscription::class);
     }
 
     public function isSuaps(): bool
