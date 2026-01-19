@@ -284,7 +284,7 @@ export default function Register() {
                   required
                 />
 
-                {selectedRole === "etudiant" ? (
+                {(selectedRole === "etudiant" || selectedRole === "moniteur") ? (
                   <FormInput
                     label="Prénom"
                     name="prenom"
@@ -303,6 +303,7 @@ export default function Register() {
                     required
                   />
                 )}
+
 
                 <FormInput
                   label="Nom"
@@ -336,9 +337,7 @@ export default function Register() {
 
               {selectedRole === "etudiant" && (
                 <div className="rounded-2xl border border-white/15 bg-white/5 p-4 sm:p-5">
-                  <div className="text-sm font-extrabold">
-                    Informations étudiant
-                  </div>
+                  
 
                   <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
                     <FormInput
@@ -369,7 +368,7 @@ export default function Register() {
 
                     <div>
                       <label className="mb-2 block text-sm font-semibold text-slate-100">
-                        Image carte étudiant (optionnel)
+                        Image carte étudiant
                       </label>
                       <FormInput
                         type="file"
