@@ -1,206 +1,236 @@
 export default function Home() {
   return (
-    <main id="top" className="bg-gradient-to-br from-slate-50 to-blue-50">
-      {/* HERO */}
-      <section className="relative bg-white min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden">
-        {/* Background Basketball */}
+    <main id="top" className="relative min-h-screen text-white">
+      {/* ✅ Fixed background (same theme as login/register) */}
+      <div className="fixed inset-0 -z-20 bg-black">
         <img
-          src="/basketball_sport_icon_in_minimalist_3d_render_2 1.png"
-          alt="Basketball Background"
-          className="absolute inset-0 w-full h-full object-cover opacity-8"
+          src="/basketball-player-action-sunset 1.png"
+          alt="Fond sportif"
+          className="h-full w-full object-contain object-right"
         />
-        
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-16 flex flex-col lg:flex-row items-center justify-between gap-12">
-          {/* Left Content: Text and Button */}
-          <div className="flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center rounded-full border border-slate-200 bg-white/90 px-4 py-2 text-sm font-semibold text-suaps-blue shadow-sm mb-6">
-            •  SUAPS • Université du Littoral Côte d'Opale
-            </div>
-            
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 leading-tight mb-6">
-              GÉREZ TOUTES VOS <br className="hidden md:block" /> ACTIVITÉS <br className="hidden md:block" /> SPORTIVES
-            </h1>
-            
-            <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto lg:mx-0 leading-relaxed">
-              La plateforme complète pour gérer toutes vos activités sportives.
-              Inscriptions, validations, suivi des performances et bien plus encore.
-            </p>
-            
-            <div className="flex flex-col gap-3 sm:flex-row lg:justify-start justify-center">
-              <a
-                href="/register"
-                className="inline-flex items-center justify-center rounded-lg bg-gray-900 px-8 py-4 text-lg font-bold text-white shadow-lg hover:bg-gray-800 transition-colors"
-              >
-                COMMENCER
-              </a>
-              <a
-                href="#about"
-                className="inline-flex items-center justify-center rounded-lg border border-suaps-blue/20 bg-white px-6 py-4 text-sm font-semibold text-suaps-blue shadow-sm hover:bg-suaps-blue hover:text-white transition-colors"
-              >
-                EN SAVOIR PLUS
-              </a>
-            </div>
-          </div>
+      </div>
 
-          {/* Right Content: Basketball Player Image */}
-          <div className="flex-1 flex justify-center lg:justify-end">
-            <img
-              src="/basketball-player-action-sunset 1.png"
-              alt="Basketball Player"
-              className="max-w-full h-auto lg:max-w-xl xl:max-w-2xl object-contain drop-shadow-2xl"
-            />
+      {/* ✅ Color overlay */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#205187]/80 via-black/70 to-[#E33A3B]/60" />
+
+      {/* ✅ Soft “salt / frosted” layer */}
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]" />
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+      </div>
+
+      {/* HERO */}
+      <section className="relative">
+        {/* optional subtle pattern */}
+        <div className="fixed inset-0 -z-20 bg-black pt-16">
+  <img
+    src="/basketball-player-action-sunset 1.png"
+    alt="Fond sportif"
+    className="h-full w-full object-contain object-right"
+  />
+</div>
+
+        <div className="mx-auto max-w-6xl px-4 pt-14 pb-10 md:pt-20 md:pb-16">
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+            <div>
+              <p className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white">
+                SUAPS • Université du Littoral Côte d&apos;Opale
+              </p>
+
+              <h1 className="mt-5 text-4xl font-black leading-tight md:text-6xl">
+                Gérez vos{" "}
+                <span className="text-white">activités sportives</span>
+                <br />
+                <span className="text-white/80">
+                  simplement et rapidement
+                </span>
+              </h1>
+
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-white/80">
+                Inscription, validation, suivi des activités et gestion
+                administrative — une seule plateforme SUAPS adaptée à chaque
+                profil.
+              </p>
+
+              <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                <a
+                  href="/register"
+                  className="inline-flex items-center justify-center rounded-xl bg-[#E33A3B] px-7 py-3 text-sm font-extrabold text-white hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#E33A3B]/25"
+                >
+                  Créer un compte
+                </a>
+
+                <a
+                  href="#categories"
+                  className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 px-7 py-3 text-sm font-extrabold text-white hover:bg-white/15"
+                >
+                  Voir les catégories
+                </a>
+              </div>
+            </div>
+
+            {/* Right glass card */}
+            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 shadow-sm backdrop-blur-md sm:p-8">
+              <h2 className="text-lg font-extrabold">Fonctionnalités clés</h2>
+              <p className="mt-2 text-sm text-white/80">
+                Une expérience simple, adaptée à votre rôle.
+              </p>
+
+              <div className="mt-6 space-y-3">
+                <FeatureRow
+                  title="Étudiants"
+                  text="Demander une inscription, déposer des documents, suivre les statuts."
+                />
+                <FeatureRow
+                  title="Moniteurs"
+                  text="Valider les demandes, gérer les groupes et les évaluations."
+                />
+                <FeatureRow
+                  title="Personnel"
+                  text="Participer aux activités dans différents sites."
+                />
+              </div>
+
+              <div className="mt-6 rounded-2xl border border-white/15 bg-white/5 p-4 text-sm text-white/80">
+                Astuce : commencez par créer un compte, puis choisissez une
+                activité et envoyez votre demande d’inscription.
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* CATEGORIES */}
-      <section id="categories" className="border-t border-slate-200 bg-slate-50">
-        <div className="mx-auto max-w-6xl px-4 py-16">
-          <div className="max-w-3xl mx-auto text-left mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Catégories
-            </h2>
+      <section id="categories" className="relative">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="mb-8">
+            <h2 className="text-3xl font-black">Catégories</h2>
+            <p className="mt-2 text-sm text-white/80">
+              Découvrez les activités proposées par le SUAPS.
+            </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            <div className="relative rounded-xl overflow-hidden shadow-lg group aspect-[4/3]">
-              <img src="/soccer-ball-green-grass-soccer-field-generative-ai 1.png" alt="Football" className="w-full h-full object-cover absolute inset-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="relative p-4 flex items-end justify-start h-full">
-                <h3 className="text-xl font-bold text-white z-10">FOOTBALL</h3>
-              </div>
-            </div>
-
-            <div className="relative rounded-xl overflow-hidden shadow-lg group aspect-[4/3]">
-              <img src="/close-up-basketball-outdoors 1.png" alt="Basketball" className="w-full h-full object-cover absolute inset-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="relative p-4 flex items-end justify-start h-full">
-                <h3 className="text-xl font-bold text-white z-10">BASKETBALL</h3>
-              </div>
-            </div>
-
-            <div className="relative rounded-xl overflow-hidden shadow-lg group aspect-[4/3]">
-              <img src="/red-ping-pong-racket-sports-equipment 1.png" alt="Tennis de Table" className="w-full h-full object-cover absolute inset-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="relative p-4 flex items-end justify-start h-full">
-                <h3 className="text-xl font-bold text-white z-10">TENNIS DE TABLE</h3>
-              </div>
-            </div>
-
-            <div className="relative rounded-xl overflow-hidden shadow-lg group aspect-[4/3]">
-              <img src="/three-white-shuttlecocks-badminton-racquet 1.png" alt="Badminton" className="w-full h-full object-cover absolute inset-0" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="relative p-4 flex items-end justify-start h-full">
-                <h3 className="text-xl font-bold text-white z-10">BADMINTON</h3>
-              </div>
-            </div>
+          <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-4">
+            <CategoryCard
+              img="/soccer-ball-green-grass-soccer-field-generative-ai 1.png"
+              title="Football"
+            />
+            <CategoryCard
+              img="/close-up-basketball-outdoors 1.png"
+              title="Basketball"
+            />
+            <CategoryCard
+              img="/red-ping-pong-racket-sports-equipment 1.png"
+              title="Tennis de table"
+            />
+            <CategoryCard
+              img="/three-white-shuttlecocks-badminton-racquet 1.png"
+              title="Badminton"
+            />
           </div>
         </div>
       </section>
 
       {/* CONTACT */}
-      <section id="contact" className="relative bg-gradient-to-br from-gray-900 to-black text-white overflow-hidden">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-repeat" 
-               style={{
-                 backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-                 backgroundSize: '60px 60px'
-               }} />
-        </div>
-        
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-20">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-5xl font-black text-white mb-6">
-                CONTACT
-              </h2>
-              <p className="text-xl text-gray-300 max-w-2xl mx-auto leading-relaxed">
-                Une question ? Besoin d'aide ? Contactez-nous pour toute information sur les activités sportives.
+      <section id="contact" className="relative">
+        <div className="mx-auto max-w-6xl px-4 py-14">
+          <div className="grid gap-10 lg:grid-cols-2">
+            {/* Contact info */}
+            <div className="rounded-3xl border border-white/15 bg-white/10 p-6 shadow-sm backdrop-blur-md sm:p-8">
+              <h2 className="text-3xl font-black">Contact</h2>
+              <p className="mt-3 text-sm leading-6 text-white/80">
+                Une question ? Besoin d’aide ? Contactez le SUAPS pour toute
+                information.
+              </p>
+
+              <div className="mt-7 space-y-4">
+                <InfoLine label="Email" value="suaps@univ-littoral.fr" />
+                <InfoLine
+                  label="Localisation"
+                  value="Université du Littoral Côte d'Opale"
+                />
+              </div>
+
+              <div className="mt-8 h-px bg-white/15" />
+
+              <p className="mt-6 text-xs text-white/60">
+                © {new Date().getFullYear()} SUAPS • Université du Littoral Côte
+                d&apos;Opale
               </p>
             </div>
-            
-            <div className="grid gap-12 lg:grid-cols-2">
-              {/* Contact Information */}
-              <div className="space-y-8">
-                <div>
-                  <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-                    
-                    Informations de contact
-                  </h3>
-                  <div className="space-y-6">
-                    <div className="flex items-start p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-                      <span className="text-2xl mr-4 mt-1">📧</span>
-                      <div>
-                        <p className="text-lg font-semibold text-white mb-1">Email</p>
-                        <p className="text-gray-300">suaps@univ-littoral.fr</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-start p-6 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20">
-                      <span className="text-2xl mr-4 mt-1">🏫</span>
-                      <div>
-                        <p className="text-lg font-semibold text-white mb-1">Localisation</p>
-                        <p className="text-gray-300">Université du Littoral Côte d'Opale</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Map */}
-              <div className="space-y-6">
-                <h3 className="text-2xl font-bold text-white mb-6 flex items-center">
-                  <img src="/localisation.svg" alt="Localisation" className="w-8 h-8 mr-3 filter brightness-0 invert" />
-                  Localisation
-                </h3>
-                <div className="rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl">
-                  <iframe
-                    width="100%"
-                    height="400"
-                    src="https://www.openstreetmap.org/export/embed.html?bbox=1.877117156982422%2C50.953134703305025%2C1.8820953369140627%2C50.95530757231995&amp;layer=mapnik"
-                    className="w-full border-0"
-                    title="Université du Littoral Côte d'Opale Location"
-                    loading="lazy"
-                  />
-                </div>
+            {/* Map */}
+            <div className="rounded-3xl border border-white/15 bg-white/10 p-3 shadow-sm backdrop-blur-md sm:p-4">
+              <div className="overflow-hidden rounded-2xl border border-white/15">
+                <iframe
+                  width="100%"
+                  height="420"
+                  src="https://www.openstreetmap.org/export/embed.html?bbox=1.877117156982422%2C50.953134703305025%2C1.8820953369140627%2C50.95530757231995&amp;layer=mapnik"
+                  className="w-full border-0"
+                  title="Université du Littoral Côte d'Opale"
+                  loading="lazy"
+                />
               </div>
+              <p className="mt-3 text-xs text-white/60">
+                Carte : OpenStreetMap
+              </p>
             </div>
-
-            {/* Footer */}
-            <footer className="mt-20 pt-12 border-t border-white/20">
-              <div className="text-center">
-                <p className="text-sm text-gray-400">
-                  &copy; {new Date().getFullYear()} SUAPS • Université du Littoral Côte d'Opale
-                </p>
-                <div className="flex justify-center gap-6 mt-4">
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                    <img src="/facebook.svg" alt="Facebook" className="w-8 h-8 filter brightness-0 invert" />
-                  </a>
-                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                    <img src="/instagram.svg" alt="Instagram" className="w-8 h-8 filter brightness-0 invert" />
-                  </a>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
-                    <img src="/linkedin.svg" alt="LinkedIn" className="w-8 h-8 filter brightness-0 invert" />
-                  </a>
-                </div>
-              </div>
-            </footer>
           </div>
         </div>
       </section>
+
+      {/* Bottom spacing */}
+      <div className="h-10" />
     </main>
   );
 }
 
-function Card({ title, text }) {
+/* Small components */
+function MiniStat({ title, subtitle }) {
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
-      <h3 className="text-lg font-bold text-suaps-blue mb-3 flex items-center">
-        <span className="text-xl mr-2">{title.split(' ')[0]}</span>
-        <span>{title.split(' ').slice(1).join(' ')}</span>
-      </h3>
-      <p className="text-sm text-slate-600 leading-6">{text}</p>
+    <div className="rounded-2xl border border-white/15 bg-white/10 p-3 text-center backdrop-blur-sm">
+      <div className="text-xl font-black">{title}</div>
+      <div className="text-xs text-white/70">{subtitle}</div>
+    </div>
+  );
+}
+
+function FeatureRow({ title, text }) {
+  return (
+    <div className="rounded-2xl border border-white/15 bg-white/5 p-4">
+      <div className="text-sm font-extrabold">{title}</div>
+      <div className="mt-1 text-sm text-white/80">{text}</div>
+    </div>
+  );
+}
+
+function CategoryCard({ img, title }) {
+  return (
+    <div className="group relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/15 bg-white/10 shadow-sm">
+      <img
+        src={img}
+        alt={title}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+      <div className="relative flex h-full items-end p-4">
+        <div className="w-full">
+          <div className="text-lg font-black uppercase tracking-wide">
+            {title}
+          </div>
+          <div className="mt-1 h-1 w-10 rounded-full bg-[#E33A3B]" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function InfoLine({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-white/15 bg-white/5 p-4">
+      <div className="text-xs font-semibold text-white/70">{label}</div>
+      <div className="mt-1 text-sm font-semibold text-white">{value}</div>
     </div>
   );
 }

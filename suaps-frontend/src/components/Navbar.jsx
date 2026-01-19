@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from 'react-router-dom';
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -10,9 +11,6 @@ export default function Navbar() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-
-  const linkClass =
-    "text-sm font-semibold text-slate-700 hover:text-suaps-blue";
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
@@ -29,14 +27,6 @@ export default function Navbar() {
 
           {/* Liens et Boutons (desktop) */}
           <div className="hidden md:flex items-center gap-6">
-            <nav className="flex items-center gap-6">
-              <a className={linkClass} href="#about">
-                À propos
-              </a>
-              <a className={linkClass} href="#contact">
-                Contact
-              </a>
-            </nav>
             <div className="flex items-center gap-3">
               <a
                 href="/login"
@@ -44,12 +34,12 @@ export default function Navbar() {
               >
                 Se connecter
               </a>
-              <a
-                href="/register"
+              <Link
+                to="/register"
                 className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
               >
                 S'inscrire
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -87,37 +77,22 @@ export default function Navbar() {
         {open && (
           <div className="md:hidden pb-4">
             <div className="mt-2 grid gap-2 rounded-xl border border-slate-200 bg-white p-3">
-              <a
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                href="#about"
-                onClick={() => setOpen(false)}
-              >
-                À propos
-              </a>
-              <a
-                className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                href="#contact"
-                onClick={() => setOpen(false)}
-              >
-                Contact
-              </a>
-
               <div className="my-2 h-px bg-slate-200" />
 
-              <a
-                href="/login"
+              <Link
+                to="/login"
                 className="rounded-lg px-3 py-2 text-sm font-semibold text-suaps-blue hover:bg-slate-100"
                 onClick={() => setOpen(false)}
               >
                 Se connecter
-              </a>
-              <a
-                href="/register"
-                className="rounded-lg bg-suaps-red px-3 py-2 text-sm font-semibold text-white hover:opacity-90"
+              </Link>
+              <Link
+                to="/register"
+                className="rounded-lg bg-slate-700 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
                 onClick={() => setOpen(false)}
               >
                 S'inscrire
-              </a>
+              </Link>
             </div>
           </div>
         )}
