@@ -46,7 +46,7 @@ export default function Navbar() {
               </a>
               <a
                 href="/register"
-                className="rounded-lg bg-suaps-red px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+                className="rounded-lg bg-slate-700 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
               >
                 S'inscrire
               </a>
