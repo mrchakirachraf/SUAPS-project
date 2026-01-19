@@ -1,17 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-/* Reusable input (same as Register) */
 function FormInput({ label, className = "", ...props }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-100">
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
         {label}
       </label>
       <input
         {...props}
         className={
-          "w-full rounded-xl border border-white/15 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#205187] focus:ring-4 focus:ring-[#205187]/25 " +
+          "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#334155] focus:ring-4 focus:ring-[#334155]/15 " +
           className
         }
       />
@@ -20,10 +19,7 @@ function FormInput({ label, className = "", ...props }) {
 }
 
 export default function Login() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,28 +29,27 @@ export default function Login() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Login data:", formData);
-    // TODO: connect to Laravel auth API
   };
 
   return (
-    <main className="relative min-h-screen text-white">
-      {/* Fixed background */}
-      <div className="fixed inset-0 -z-20 bg-black">
+    <main className="relative min-h-screen text-slate-900">
+      {/* ✅ Fixed background image (fresh) */}
+      <div className="fixed inset-0 -z-20 bg-white">
         <img
           src="/basketball-player-action-sunset 1.png"
           alt="Basketball Player"
-          className="h-full w-full object-contain object-right"
+          className="h-full w-full object-contain object-right opacity-85"
         />
       </div>
 
-      {/* Color overlay */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#205187]/80 via-black/70 to-[#E33A3B]/60" />
+      {/* ✅ Fresh clear overlay (NO BLACK) */}
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#334155]/10 via-white/75 to-[#334155]/10" />
 
-      {/* Soft layer */}
+      {/* ✅ Soft frosted layer */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]" />
-        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+        <div className="absolute inset-0 bg-white/55 backdrop-blur-[1px]" />
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#334155]/10 blur-3xl" />
+        <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-[#334155]/10 blur-3xl" />
       </div>
 
       {/* Content */}
@@ -62,7 +57,7 @@ export default function Login() {
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           {/* Left text */}
           <div>
-            <p className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+            <p className="inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold text-[#334155]">
               SUAPS • Université du Littoral Côte d’Opale
             </p>
 
@@ -70,21 +65,22 @@ export default function Login() {
               Se connecter
             </h1>
 
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
+            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
               Connectez-vous pour accéder à votre espace personnel et gérer vos
               activités sportives.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-                <div className="text-sm font-extrabold">Accès sécurisé</div>
-                <div className="mt-1 text-sm text-white/80">
+              <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
+                <div className="text-sm font-extrabold text-slate-900">Accès sécurisé</div>
+                <div className="mt-1 text-sm text-slate-600">
                   Authentification protégée et données sécurisées.
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-                <div className="text-sm font-extrabold">Espace personnalisé</div>
-                <div className="mt-1 text-sm text-white/80">
+
+              <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
+                <div className="text-sm font-extrabold text-slate-900">Espace personnalisé</div>
+                <div className="mt-1 text-sm text-slate-600">
                   Accédez à vos inscriptions et validations.
                 </div>
               </div>
@@ -92,9 +88,9 @@ export default function Login() {
           </div>
 
           {/* Login card */}
-          <div className="rounded-3xl border border-white/15 bg-white/10 p-6 shadow-sm backdrop-blur-md sm:p-8">
-            <h2 className="text-lg font-extrabold">Connexion</h2>
-            <p className="mt-1 text-sm text-white/80">
+          <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur-md sm:p-8">
+            <h2 className="text-lg font-extrabold text-slate-900">Connexion</h2>
+            <p className="mt-1 text-sm text-slate-600">
               Entrez vos identifiants pour continuer.
             </p>
 
@@ -120,29 +116,23 @@ export default function Login() {
               />
 
               <div className="flex items-center justify-between text-sm">
-                <span className="text-white/70">
-                  Mot de passe oublié ?
-                </span>
-                <Link
-                  to="/register"
-                  className="font-semibold text-white hover:underline"
-                >
+                <span className="text-slate-500">Mot de passe oublié ?</span>
+
+                <Link to="/register" className="font-semibold text-[#334155] hover:underline">
                   Créer un compte
                 </Link>
               </div>
 
+              {/* ✅ Button fix: white text */}
               <button
                 type="submit"
-                className="w-full rounded-xl bg-[#205187] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#205187]/30"
+                className="w-full rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25"
               >
                 Se connecter
               </button>
 
               <div className="text-center">
-                <Link
-                  to="/"
-                  className="text-sm font-semibold text-white/80 hover:text-white hover:underline"
-                >
+                <Link to="/" className="text-sm font-semibold text-[#334155] hover:underline">
                   ← Retour à l’accueil
                 </Link>
               </div>
