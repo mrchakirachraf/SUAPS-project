@@ -3,23 +3,23 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 
 
-// ✅ Correct input component (no crash)
 function FormInput({ label, className = "", ...props }) {
   return (
     <div>
-      <label className="mb-2 block text-sm font-semibold text-slate-100">
+      <label className="mb-2 block text-sm font-semibold text-slate-700">
         {label}
       </label>
       <input
         {...props}
         className={
-          "w-full rounded-xl border border-white/15 bg-white/90 px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#E33A3B] focus:ring-4 focus:ring-[#E33A3B]/20 " +
+          "w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none transition focus:border-[#205187] focus:ring-4 focus:ring-[#205187]/15 " +
           className
         }
       />
     </div>
   );
 }
+
 
 
 export default function Register() {
@@ -74,7 +74,6 @@ export default function Register() {
     return alert("Les mots de passe ne correspondent pas.");
 
   try {
-    // ✅ base payload (common for all)
     const payload = {
       username: formData.username,
       nom: formData.nom,
@@ -130,33 +129,33 @@ export default function Register() {
 
 
   return (
-    <main className="relative min-h-screen text-white">
+    <main className="relative min-h-screen text-slate-900">
       {/* ✅ Fixed background image */}
-      <div className="fixed inset-0 -z-20 bg-black">
+      <div className="fixed inset-0 -z-20 bg-white">
         <img
             src="/basketball-player-action-sunset 1.png"
             alt="Basketball Player Background"
-            className="h-full w-full object-contain object-right"
+            className="h-full w-full object-contain object-right opacity-85"
         />
       </div>
 
       {/* ✅ Color overlay (blue->red gradient, soft) */}
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#205187]/80 via-black/70 to-[#E33A3B]/60" />
+      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#205187]/12 via-white/65 to-[#334155]/12" />
 
       {/* ✅ “Salt / soft layer” (grain-like / frosted look) */}
-      <div className="fixed inset-0 -z-10 opacity-60">
-        <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px]" />
-        {/* subtle blobs */}
-        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-        <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+      <div className="fixed inset-0 -z-10">
+        <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px]" />
+        <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#205187]/10 blur-3xl" />
+        <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-[#334155]/10 blur-3xl" />
       </div>
+
 
       {/* Content */}
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
         {/* Header */}
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div>
-            <p className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+            <p className="inline-flex items-center rounded-full border border-slate-200 bg-white/80 px-3 py-1 text-xs font-semibold text-[#205187]">
               SUAPS • Université du Littoral Côte d’Opale
             </p>
 
@@ -164,21 +163,21 @@ export default function Register() {
               Créer un compte
             </h1>
 
-            <p className="mt-3 max-w-xl text-sm leading-6 text-white/80 sm:text-base">
+            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-900 sm:text-base">
               Accédez aux activités sportives, suivez vos inscriptions, et gérez
               les validations selon votre rôle.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-                <div className="text-sm font-extrabold">Interface claire</div>
-                <div className="mt-1 text-sm text-white/80">
+              <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
+                <div className="text-sm font-extrabold text-slate-900">Interface claire</div>
+                <div className="mt-1 text-sm text-slate-600">
                   Adaptée mobile & desktop, navigation simple.
                 </div>
               </div>
-              <div className="rounded-2xl border border-white/15 bg-white/10 p-4">
-                <div className="text-sm font-extrabold">Gestion des inscriptions</div>
-                <div className="mt-1 text-sm text-white/80">
+              <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
+                <div className="text-sm font-extrabold text-slate-900">Gestion des inscriptions</div>
+                <div className="mt-1 text-sm text-slate-600">
                   Demandes, statuts, validations et suivi.
                 </div>
               </div>
@@ -186,9 +185,9 @@ export default function Register() {
           </div>
 
           {/* Role cards */}
-          <div className="rounded-3xl border border-white/15 bg-white/10 p-5 shadow-sm backdrop-blur-md sm:p-6">
-            <h2 className="text-base font-extrabold">Choisissez votre rôle</h2>
-            <p className="mt-1 text-sm text-white/80">
+          <div className="rounded-3xl border border-slate-200 bg-white/70 shadow-sm backdrop-blur-md sm:p-6">
+            <h2 className="text-base font-extrabold text-slate-900">Choisissez votre rôle</h2>
+            <p className="mt-1 text-sm text-slate-900">
               Cela adaptera les fonctionnalités après connexion.
             </p>
 
@@ -202,20 +201,18 @@ export default function Register() {
                     onClick={() => handleRoleSelect(role.id)}
                     className={`text-left rounded-2xl border p-4 transition ${
                       active
-                        ? "border-[#E33A3B] border bg-[#E33A3B]/15"
-                        : "border-white/15 border bg-white/5 hover:bg-white/10"
+                        ? "border-[#334155] border bg-[#334155]/10"
+                        : "border-slate-200 border bg-white/60 hover:bg-white/80"
+
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <div
-                          className={`text-sm font-extrabold ${
-                            active ? "text-white" : "text-white"
-                          }`}
-                        >
+                        <div className={`text-sm font-extrabold ${active ? "text-[#334155]" : "text-slate-900"}`}>
                           {role.name}
                         </div>
-                        <div className="mt-1 text-sm text-white/80">
+
+                        <div className="mt-1 text-sm text-slate-600">
                           {role.description}
                         </div>
                       </div>
@@ -224,8 +221,9 @@ export default function Register() {
                       <div
                         className={`mt-1 h-5 w-5 rounded-full border-2 ${
                           active
-                            ? "border-[#E33A3B] border bg-[#E33A3B]"
-                            : "border-white/40 border bg-transparent"
+                            ? "border-[#334155] border bg-[#334155]"
+                            : "border-slate-300 border bg-white"
+
                         }`}
                       />
                     </div>
@@ -237,29 +235,29 @@ export default function Register() {
         </div>
 
         {/* Form card */}
-        <div className="mt-10 rounded-3xl border border-white/15 bg-white/10 p-5 shadow-sm backdrop-blur-md sm:p-8">
+        <div className="mt-10 rounded-3xl border border-slate-200 bg-white/70 p-5 shadow-sm backdrop-blur-md sm:p-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h3 className="text-lg font-extrabold">
                 Informations {roleLabel || "compte"}
               </h3>
-              <p className="mt-1 text-sm text-white/80">
+              <p className="mt-1 text-sm text-slate-600">
                 Remplissez les informations ci-dessous. Les champs varient selon le rôle.
               </p>
             </div>
 
             <div className="text-sm">
-              <span className="text-white/80">Déjà un compte ? </span>
-              <Link to="/login" className="font-semibold text-white hover:underline">
+              <span className="text-slate-600">Déjà un compte ? </span>
+              <Link to="/login" className="font-semibold text-[#205187] hover:underline">
                 Se connecter
               </Link>
             </div>
           </div>
 
-          <div className="mt-6 h-px w-full bg-white/15" />
+          <div className="mt-6 h-px w-full bg-slate-200" />
 
           {!selectedRole ? (
-            <div className="mt-6 rounded-2xl border border-white/15 bg-white/5 p-4 text-sm text-white/80">
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white/60 p-4 text-sm text-slate-600">
               Sélectionnez d’abord un rôle pour afficher le formulaire.
             </div>
           ) : (
@@ -336,7 +334,7 @@ export default function Register() {
               </div>
 
               {selectedRole === "etudiant" && (
-                <div className="rounded-2xl border border-white/15 bg-white/5 p-4 sm:p-5">
+                <div className="rounded-2xl border border-slate-200 bg-white/60 p-4 sm:p-5">
                   
 
                   <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
@@ -367,7 +365,7 @@ export default function Register() {
                     />
 
                     <div>
-                      <label className="mb-2 block text-sm font-semibold text-slate-100">
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
                         Image carte étudiant
                       </label>
                       <FormInput
@@ -377,7 +375,7 @@ export default function Register() {
                         onChange={handleFormInputChange}
                         className="w-full rounded-xl border border-white/15 bg-white/90 px-4 py-3 text-sm text-slate-900 outline-none"
                       />
-                      <p className="mt-2 text-xs text-white/70">
+                      <p className="mt-2 text-xs text-slate-500">
                         JPG/PNG recommandé (≤ 5MB).
                       </p>
                     </div>
@@ -386,24 +384,22 @@ export default function Register() {
               )}
 
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <Link
-                  to="/"
-                  className="text-sm font-semibold text-white/80 hover:text-white hover:underline"
-                >
+                <Link to="/" className="text-sm font-semibold text-[#205187] hover:underline">
                   Retour à l’accueil
                 </Link>
 
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center rounded-xl bg-[#E33A3B] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#E33A3B]/25"
+                  className="inline-flex items-center justify-center rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25"
                 >
                   S’inscrire
                 </button>
               </div>
 
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-slate-500">
                 En créant un compte, vous acceptez les règles d’utilisation de la plateforme SUAPS.
               </p>
+
             </form>
           )}
         </div>
