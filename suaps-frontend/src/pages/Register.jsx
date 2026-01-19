@@ -52,7 +52,7 @@ export default function Register() {
     {
       id: "personnel",
       name: "Personnel",
-      description: "Gestion administrative, suivi des dossiers, documents.",
+      description: "Participer aux activités dans différents sites.",
     },
   ];
 
@@ -337,7 +337,7 @@ export default function Register() {
               {selectedRole === "etudiant" && (
                 <div className="rounded-2xl border border-white/15 bg-white/5 p-4 sm:p-5">
                   <div className="text-sm font-extrabold">
-                    Informations étudiant (optionnel)
+                    Informations étudiant
                   </div>
 
                   <div className="mt-4 grid grid-cols-1 gap-5 md:grid-cols-2">
