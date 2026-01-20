@@ -10,7 +10,6 @@ class Personnel extends Model
     use HasFactory;
 
     protected $fillable = [
-        'fonction',
         'user_id',
     ];
 

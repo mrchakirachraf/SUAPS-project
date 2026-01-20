@@ -138,7 +138,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 py-20">
+        <div id="about" className="relative z-10 mx-auto max-w-6xl px-4 py-20">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-5xl font-black text-white mb-6">CONTACT</h2>

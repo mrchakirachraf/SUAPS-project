@@ -115,7 +115,7 @@ export default function Login() {
                 required
               />
 
-              <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center justify-between  text-sm">
                 <span className="text-slate-500">Mot de passe oublié ?</span>
 
                 <Link to="/register" className="font-semibold text-[#334155] hover:underline">
