@@ -67,56 +67,88 @@ export default function Register() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!selectedRole) return alert("Veuillez sélectionner un rôle.");
-  if (formData.password !== formData.confirmPassword)
-    return alert("Les mots de passe ne correspondent pas.");
+    if (!selectedRole) return alert("Veuillez sélectionner un rôle.");
+    if (formData.password !== formData.confirmPassword)
+      return alert("Les mots de passe ne correspondent pas.");
 
-  try {
-    const payload = {
-      username: formData.username,
-      nom: formData.nom,
-      prenom: formData.prenom,
-      email: formData.email,
-      password: formData.password,
-      password_confirmation: formData.confirmPassword, // ✅ Laravel confirmed rule
-    };
+    try {
+      let url = "";
+      let payload;
 
-    let url = "";
+      // 🔹 Étudiant → FormData (image)
+      if (selectedRole === "etudiant") {
+        url = "http://localhost:8000/api/auth/register/etudiant";
 
-    if (selectedRole === "moniteur") {
-      url = "http://localhost:8000/api/auth/register/moniteur";
-    } else if (selectedRole === "etudiant") {
-      url = "http://localhost:8000/api/auth/register/etudiant"; // to create later
-    } else if (selectedRole === "personnel") {
-      url = "http://localhost:8000/api/auth/register/personnel"; // to create later
-    } else {
-      return alert("Rôle non supporté.");
+        payload = new FormData();
+        payload.append("username", formData.username);
+        payload.append("nom", formData.nom);
+        payload.append("prenom", formData.prenom);
+        payload.append("email", formData.email);
+        payload.append("password", formData.password);
+        payload.append("password_confirmation", formData.confirmPassword);
+        payload.append("num_carte_etud", formData.num_carte_etud);
+        payload.append("formation", formData.formation);
+
+        if (formData.img_carte_etud) {
+          payload.append("img_carte_etud", formData.img_carte_etud);
+        }
+
+      // 🔹 Moniteur → JSON
+      } else if (selectedRole === "moniteur") {
+        url = "http://localhost:8000/api/auth/register/moniteur";
+
+        payload = {
+          username: formData.username,
+          nom: formData.nom,
+          prenom: formData.prenom,
+          email: formData.email,
+          password: formData.password,
+          password_confirmation: formData.confirmPassword,
+        };
+
+      // 🔹 Personnel → JSON
+      } else if (selectedRole === "personnel") {
+        url = "http://localhost:8000/api/auth/register/personnel";
+
+        payload = {
+          username: formData.username,
+          nom: formData.nom,
+          prenom: formData.prenom,
+          email: formData.email,
+          password: formData.password,
+          password_confirmation: formData.confirmPassword,
+          fonction: formData.fonction,
+        };
+      } else {
+        return alert("Rôle non supporté.");
+      }
+
+      const res = await axios.post(url, payload, {
+        headers:
+          payload instanceof FormData
+            ? { "Content-Type": "multipart/form-data" }
+            : { "Content-Type": "application/json" },
+      });
+
+      alert("Compte créé avec succès !");
+      console.log(res.data);
+
+    } catch (err) {
+      console.error(err);
+
+      if (err.response?.status === 422) {
+        const errors = err.response.data.errors;
+        const firstMsg = Object.values(errors)?.[0]?.[0];
+        alert(firstMsg || "Erreur de validation.");
+        return;
+      }
+
+      alert("Erreur serveur. Réessayez.");
     }
+  };
 
-    const res = await axios.post(url, payload);
-
-    alert("Compte créé avec succès !");
-    console.log(res.data);
-
-    // Optionally redirect to login
-    // navigate("/login");
-
-  } catch (err) {
-    console.error(err);
-
-    // Laravel validation errors
-    if (err.response?.status === 422) {
-      const errors = err.response.data.errors;
-      const firstMsg = Object.values(errors)?.[0]?.[0];
-      alert(firstMsg || "Erreur de validation.");
-      return;
-    }
-
-    alert("Erreur serveur. Réessayez.");
-  }
-};
 
   const roleLabel =
     selectedRole === "etudiant"
@@ -292,14 +324,7 @@ export default function Register() {
                     required
                   />
                 ) : (
-                  <FormInput
-                    label="Fonction"
-                    name="fonction"
-                    value={formData.fonction}
-                    onChange={handleFormInputChange}
-                    placeholder="ex: Responsable, Assistant..."
-                    required
-                  />
+                  <div />
                 )}
 
 
@@ -352,16 +377,6 @@ export default function Register() {
                       value={formData.formation}
                       onChange={handleFormInputChange}
                       placeholder="ex: ING2, Licence, Master..."
-                    />
-
-                    <FormInput
-                      label="Nombre d’activités inscrites"
-                      type="number"
-                      name="nb_activites_inscrits"
-                      value={formData.nb_activites_inscrits}
-                      onChange={handleFormInputChange}
-                      placeholder="0"
-                      min="0"
                     />
 
                     <div>
