@@ -147,7 +147,6 @@ export default function Register() {
         email: formData.email,
         password: formData.password,
         password_confirmation: formData.confirmPassword,
-        fonction: formData.fonction,
       };
     }
 
@@ -362,18 +361,16 @@ export default function Register() {
                   required
                 />
 
-                {(selectedRole === "etudiant" || selectedRole === "moniteur") ? (
-                  <FormInput
-                    label="Prénom"
-                    name="prenom"
-                    value={formData.prenom}
-                    onChange={handleFormInputChange}
-                    placeholder="Votre prénom"
-                    required
-                  />
-                ) : (
-                  <div />
-                )}
+                
+                 <FormInput
+                  label="Prénom"
+                  name="prenom"
+                  value={formData.prenom}
+                  onChange={handleFormInputChange}
+                  placeholder="Votre prénom"
+                  required
+                />
+
 
 
                 <FormInput

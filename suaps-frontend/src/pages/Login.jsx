@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 function FormInput({ label, className = "", ...props }) {
@@ -23,6 +23,8 @@ export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
 
   const handleChange = (e) => {
@@ -33,6 +35,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
@@ -56,6 +59,9 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       console.log("Connexion réussie", data);
+      setSuccess("Connexion réussie! Redirection en cours...");
+
+      setTimeout(() => navigate("/dashboard"), 1500);
 
       // TODO: redirection plus tard
       // navigate("/dashboard");
@@ -160,6 +166,11 @@ export default function Login() {
                 </Link>
               </div>
 
+              {success && (
+                <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                  {success}
+                </div>
+              )}
               {error && (
                 <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error}
@@ -169,7 +180,7 @@ export default function Login() {
 
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || success}
                 className="w-full rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25 disabled:opacity-60"
               >
                 {loading ? "Connexion..." : "Se connecter"}
