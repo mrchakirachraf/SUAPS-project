@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+
 
 
 function FormInput({ label, className = "", ...props }) {
@@ -24,6 +25,25 @@ function FormInput({ label, className = "", ...props }) {
 
 export default function Register() {
   const [selectedRole, setSelectedRole] = useState("");
+  const navigate = useNavigate();
+  const messageRef = useRef(null);
+
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  useEffect(() => {
+    if (errorMessage || successMessage) {
+      messageRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [errorMessage, successMessage]);
+
+
   const [formData, setFormData] = useState({
     username: "",
     nom: "",
@@ -67,87 +87,99 @@ export default function Register() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!selectedRole) return alert("Veuillez sélectionner un rôle.");
-    if (formData.password !== formData.confirmPassword)
-      return alert("Les mots de passe ne correspondent pas.");
+  setErrorMessage("");
+  setSuccessMessage("");
 
-    try {
-      let url = "";
-      let payload;
+  if (!selectedRole) {
+    setErrorMessage("Veuillez sélectionner un rôle.");
+    return;
+  }
 
-      // 🔹 Étudiant → FormData (image)
-      if (selectedRole === "etudiant") {
-        url = "http://localhost:8000/api/auth/register/etudiant";
+  if (formData.password !== formData.confirmPassword) {
+    setErrorMessage("Les mots de passe ne correspondent pas.");
+    return;
+  }
 
-        payload = new FormData();
-        payload.append("username", formData.username);
-        payload.append("nom", formData.nom);
-        payload.append("prenom", formData.prenom);
-        payload.append("email", formData.email);
-        payload.append("password", formData.password);
-        payload.append("password_confirmation", formData.confirmPassword);
-        payload.append("num_carte_etud", formData.num_carte_etud);
-        payload.append("formation", formData.formation);
+  try {
+    setIsSubmitting(true);
 
-        if (formData.img_carte_etud) {
-          payload.append("img_carte_etud", formData.img_carte_etud);
-        }
+    let url = "";
+    let payload;
 
-      // 🔹 Moniteur → JSON
-      } else if (selectedRole === "moniteur") {
-        url = "http://localhost:8000/api/auth/register/moniteur";
+    if (selectedRole === "etudiant") {
+      url = "http://localhost:8000/api/auth/register/etudiant";
 
-        payload = {
-          username: formData.username,
-          nom: formData.nom,
-          prenom: formData.prenom,
-          email: formData.email,
-          password: formData.password,
-          password_confirmation: formData.confirmPassword,
-        };
+      payload = new FormData();
+      payload.append("username", formData.username);
+      payload.append("nom", formData.nom);
+      payload.append("prenom", formData.prenom);
+      payload.append("email", formData.email);
+      payload.append("password", formData.password);
+      payload.append("password_confirmation", formData.confirmPassword);
+      payload.append("num_carte_etud", formData.num_carte_etud);
+      payload.append("formation", formData.formation);
 
-      // 🔹 Personnel → JSON
-      } else if (selectedRole === "personnel") {
-        url = "http://localhost:8000/api/auth/register/personnel";
-
-        payload = {
-          username: formData.username,
-          nom: formData.nom,
-          prenom: formData.prenom,
-          email: formData.email,
-          password: formData.password,
-          password_confirmation: formData.confirmPassword,
-          fonction: formData.fonction,
-        };
-      } else {
-        return alert("Rôle non supporté.");
+      if (formData.img_carte_etud) {
+        payload.append("img_carte_etud", formData.img_carte_etud);
       }
 
-      const res = await axios.post(url, payload, {
-        headers:
-          payload instanceof FormData
-            ? { "Content-Type": "multipart/form-data" }
-            : { "Content-Type": "application/json" },
-      });
+    } else if (selectedRole === "moniteur") {
+      url = "http://localhost:8000/api/auth/register/moniteur";
 
-      alert("Compte créé avec succès !");
-      console.log(res.data);
+      payload = {
+        username: formData.username,
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword,
+      };
 
-    } catch (err) {
-      console.error(err);
+    } else if (selectedRole === "personnel") {
+      url = "http://localhost:8000/api/auth/register/personnel";
 
-      if (err.response?.status === 422) {
-        const errors = err.response.data.errors;
-        const firstMsg = Object.values(errors)?.[0]?.[0];
-        alert(firstMsg || "Erreur de validation.");
-        return;
-      }
-
-      alert("Erreur serveur. Réessayez.");
+      payload = {
+        username: formData.username,
+        nom: formData.nom,
+        prenom: formData.prenom,
+        email: formData.email,
+        password: formData.password,
+        password_confirmation: formData.confirmPassword,
+        fonction: formData.fonction,
+      };
     }
-  };
+
+    await axios.post(url, payload, {
+      headers:
+        payload instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : { "Content-Type": "application/json" },
+    });
+
+    setSuccessMessage("Compte créé avec succès. Redirection en cours...");
+
+    // ⏳ petite pause UX
+    setTimeout(() => {
+      navigate("/login");
+    }, 1500);
+
+  } catch (err) {
+    console.error(err);
+
+    if (err.response?.status === 422) {
+      const errors = err.response.data.errors;
+      const firstMsg = Object.values(errors)?.[0]?.[0];
+      setErrorMessage(firstMsg || "Erreur de validation.");
+      return;
+    }
+
+    setErrorMessage("Une erreur serveur est survenue. Veuillez réessayer.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
 
   const roleLabel =
@@ -265,6 +297,22 @@ export default function Register() {
             </div>
           </div>
         </div>
+
+        <div ref={messageRef}>
+          {errorMessage && (
+            <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMessage}
+            </div>
+          )}
+
+          {successMessage && (
+            <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+              {successMessage}
+            </div>
+          )}
+        </div>
+
+
 
         {/* Form card */}
         <div className="mt-10 rounded-3xl border border-slate-200 bg-white/70 p-5 shadow-sm backdrop-blur-md sm:p-8">
@@ -405,10 +453,14 @@ export default function Register() {
 
                 <button
                   type="submit"
-                  className="inline-flex items-center justify-center rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25"
+                  disabled={isSubmitting}
+                  className={`inline-flex items-center justify-center rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm transition
+                    ${isSubmitting ? "opacity-60 cursor-not-allowed" : "hover:opacity-95"}
+                  `}
                 >
-                  S’inscrire
+                  {isSubmitting ? "Création en cours..." : "S’inscrire"}
                 </button>
+
               </div>
 
               <p className="text-xs text-slate-500">
