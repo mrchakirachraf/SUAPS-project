@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
+
 function FormInput({ label, className = "", ...props }) {
   return (
     <div>
@@ -20,16 +21,52 @@ function FormInput({ label, className = "", ...props }) {
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login data:", formData);
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Identifiants incorrects");
+      }
+
+      // ✅ Stockage du token
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+
+      console.log("Connexion réussie", data);
+
+      // TODO: redirection plus tard
+      // navigate("/dashboard");
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   return (
     <main className="relative min-h-screen text-slate-900">
@@ -123,13 +160,21 @@ export default function Login() {
                 </Link>
               </div>
 
-              {/* ✅ Button fix: white text */}
+              {error && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {error}
+                </div>
+              )}
+
+
               <button
                 type="submit"
-                className="w-full rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25"
+                disabled={loading}
+                className="w-full rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25 disabled:opacity-60"
               >
-                Se connecter
+                {loading ? "Connexion..." : "Se connecter"}
               </button>
+
 
               <div className="text-center">
                 <Link to="/" className="text-sm font-semibold text-[#334155] hover:underline">
