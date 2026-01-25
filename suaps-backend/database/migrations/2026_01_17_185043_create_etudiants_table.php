@@ -23,6 +23,10 @@ return new class extends Migration
               ->constrained('users')
               ->cascadeOnDelete();
 
+        $table->foreignId('secretariat_id')
+            ->constrained()
+            ->cascadeOnDelete();
+
         $table->timestamps();
     });
 }

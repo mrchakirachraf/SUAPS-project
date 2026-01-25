@@ -33,6 +33,9 @@ export default function Register() {
   const [successMessage, setSuccessMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [secretariats, setSecretariats] = useState([]);
+  const [selectedSecretariatId, setSelectedSecretariatId] = useState("");
+
 
   useEffect(() => {
     if (errorMessage || successMessage) {
@@ -42,6 +45,21 @@ export default function Register() {
       });
     }
   }, [errorMessage, successMessage]);
+
+  
+
+  useEffect(() => {
+    const fetchSecretariats = async () => {
+      try {
+        const res = await axios.get("http://localhost:8000/api/secretariats");
+        setSecretariats(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchSecretariats();
+  }, []);
 
 
   const [formData, setFormData] = useState({
@@ -63,11 +81,6 @@ export default function Register() {
       id: "etudiant",
       name: "Étudiant",
       description: "Inscription aux activités, dépôt des documents, suivi des statuts.",
-    },
-    {
-      id: "moniteur",
-      name: "Moniteur",
-      description: "Validation des inscriptions, suivi des groupes, évaluations.",
     },
     {
       id: "personnel",
@@ -120,22 +133,13 @@ export default function Register() {
       payload.append("password_confirmation", formData.confirmPassword);
       payload.append("num_carte_etud", formData.num_carte_etud);
       payload.append("formation", formData.formation);
+      payload.append("secretariat_id", selectedSecretariatId);
+
+      
 
       if (formData.img_carte_etud) {
         payload.append("img_carte_etud", formData.img_carte_etud);
       }
-
-    } else if (selectedRole === "moniteur") {
-      url = "http://localhost:8000/api/auth/register/moniteur";
-
-      payload = {
-        username: formData.username,
-        nom: formData.nom,
-        prenom: formData.prenom,
-        email: formData.email,
-        password: formData.password,
-        password_confirmation: formData.confirmPassword,
-      };
 
     } else if (selectedRole === "personnel") {
       url = "http://localhost:8000/api/auth/register/personnel";
@@ -184,8 +188,6 @@ export default function Register() {
   const roleLabel =
     selectedRole === "etudiant"
       ? "étudiant"
-      : selectedRole === "moniteur"
-      ? "moniteur"
       : selectedRole === "personnel"
       ? "personnel"
       : "";
@@ -439,6 +441,25 @@ export default function Register() {
                         JPG/PNG recommandé (≤ 5MB).
                       </p>
                     </div>
+
+                    <div className="mt-4">
+                      {secretariats.length > 0 && (
+                        <select
+                          className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
+                          value={selectedSecretariatId}
+                          onChange={(e) => setSelectedSecretariatId(e.target.value)}
+                          required
+                        >
+                          <option value="">Sélectionnez un secrétariat</option>
+                          {secretariats.map((s) => (
+                            <option key={s.id} value={s.id}>
+                              {s.prenom} {s.nom} — {s.email}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </div>
+
                   </div>
                 </div>
               )}

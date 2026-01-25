@@ -8,25 +8,26 @@ use App\Models\Etudiant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
-use Illuminate\Support\Facades\Storage;
-
 
 class RegisterEtudiantController extends Controller
 {
-
     public function register(Request $request)
     {
         $validated = $request->validate([
+            // User
             'username' => 'required|string|unique:users',
             'nom' => 'required|string',
             'prenom' => 'required|string',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|min:8|confirmed',
 
+            // Etudiant
             'num_carte_etud' => 'required|string|unique:etudiants',
             'formation' => 'required|string',
             'img_carte_etud' => 'required|image|mimes:jpg,jpeg,png|max:4048',
+
+            // Secretariat (sélection)
+            'secretariat_id' => 'required|exists:secretariats,id',
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
@@ -49,8 +50,9 @@ class RegisterEtudiantController extends Controller
                 'user_id' => $user->id,
                 'num_carte_etud' => $validated['num_carte_etud'],
                 'formation' => $validated['formation'],
-                'img_carte_etud' => $path, // chemin stocké
+                'img_carte_etud' => $path,
                 'nb_activites_inscrits' => 0,
+                'secretariat_id' => $validated['secretariat_id'],
             ]);
 
             return response()->json([
@@ -60,6 +62,4 @@ class RegisterEtudiantController extends Controller
             ], 201);
         });
     }
-
-
 }

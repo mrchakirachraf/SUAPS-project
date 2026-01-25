@@ -15,6 +15,7 @@ class Etudiant extends Model
         'formation',
         'nb_activites_inscrits',
         'user_id',
+        'secretariat_id',
     ];
 
     /* =====================
@@ -24,6 +25,11 @@ class Etudiant extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function secretariat()
+    {
+        return $this->belongsTo(Secretariat::class);
     }
 
     public function inscriptions()
