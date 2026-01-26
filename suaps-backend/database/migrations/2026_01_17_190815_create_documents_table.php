@@ -17,7 +17,10 @@ return new class extends Migration
             $table->string('chemin');
             $table->string('type');
 
-            $table->foreignId('etudiant_id')->constrained();
+            // $table->foreignId('etudiant_id')->constrained();
+
+            // l’identifiant de l’entité à laquelle le document appartient
+            $table->morphs('documentable');
 
             $table->timestamps();
         });

@@ -74,6 +74,11 @@ export default function Register() {
     formation: "",
     nb_activites_inscrits: "",
     img_carte_etud: null,
+
+    // personnel (documents)
+    doc_personnel: null,
+    doc_responsabilite: null,
+    doc_sante: null,
   });
 
   const roles = [
@@ -144,14 +149,18 @@ export default function Register() {
     } else if (selectedRole === "personnel") {
       url = "http://localhost:8000/api/auth/register/personnel";
 
-      payload = {
-        username: formData.username,
-        nom: formData.nom,
-        prenom: formData.prenom,
-        email: formData.email,
-        password: formData.password,
-        password_confirmation: formData.confirmPassword,
-      };
+      payload = new FormData();
+      payload.append("username", formData.username);
+      payload.append("nom", formData.nom);
+      payload.append("prenom", formData.prenom);
+      payload.append("email", formData.email);
+      payload.append("password", formData.password);
+      payload.append("password_confirmation", formData.confirmPassword);
+
+
+      payload.append("doc_personnel", formData.doc_personnel);
+      payload.append("doc_responsabilite", formData.doc_responsabilite);
+      payload.append("doc_sante", formData.doc_sante);
     }
 
     await axios.post(url, payload, {
@@ -404,6 +413,54 @@ export default function Register() {
                   required
                 />
               </div>
+
+
+              {selectedRole === "personnel" && (
+                <div className="rounded-2xl border border-slate-200 bg-white/60 p-4 sm:p-5">
+                  <h4 className="mb-4 text-sm font-extrabold text-slate-900">
+                    Documents obligatoires
+                  </h4>
+
+                  <div className="grid gap-5 md:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        Preuve d’appartenance au personnel
+                      </label>
+                      <input
+                        type="file"
+                        name="doc_personnel"
+                        onChange={handleFormInputChange}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        Attestation de responsabilité civile
+                      </label>
+                      <input
+                        type="file"
+                        name="doc_responsabilite"
+                        onChange={handleFormInputChange}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold text-slate-700">
+                        Attestation de bonne santé
+                      </label>
+                      <input
+                        type="file"
+                        name="doc_sante"
+                        onChange={handleFormInputChange}
+                        required
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
 
               {selectedRole === "etudiant" && (
                 <div className="rounded-2xl border border-slate-200 bg-white/60 p-4 sm:p-5">

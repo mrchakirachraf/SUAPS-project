@@ -37,8 +37,13 @@ class Etudiant extends Model
         return $this->hasMany(Inscription::class);
     }
 
+    // public function documents()
+    // {
+    //     return $this->hasMany(Document::class);
+    // }
+
     public function documents()
     {
-        return $this->hasMany(Document::class);
+        return $this->morphMany(Document::class, 'documentable');
     }
 }

@@ -43,7 +43,7 @@ class RegisterEtudiantController extends Controller
 
             // Stockage de l'image
             $path = $request->file('img_carte_etud')
-                ->store('cartes_etudiants', 'public');
+                ->store('cartes_etudiants', 'private');
 
             // Création étudiant
             $etudiant = Etudiant::create([

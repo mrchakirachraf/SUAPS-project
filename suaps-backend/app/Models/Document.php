@@ -12,10 +12,14 @@ class Document extends Model
     protected $fillable = [
         'chemin',
         'type',
-        'etudiant_id',
     ];
 
-    public function etudiant() {
-        return $this->belongsTo(Etudiant::class);
+    /**
+     * Relation polymorphe :
+     * le document appartient soit à un Etudiant, soit à un Personnel, etc.
+     */
+    public function documentable()
+    {
+        return $this->morphTo();
     }
 }
