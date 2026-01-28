@@ -61,10 +61,9 @@ export default function Login() {
       console.log("Connexion réussie", data);
       setSuccess("Connexion réussie! Redirection en cours...");
 
-      setTimeout(() => navigate("/dashboard"), 1500);
+      setTimeout(() => navigate("/ActivitiesList"), 1500);
 
-      // TODO: redirection plus tard
-      // navigate("/dashboard");
+    
 
     } catch (err) {
       setError(err.message);
