@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\RegisterEtudiantController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterPersonnelController;
+use App\Http\Controllers\ActiviteController;
+
 
 
 
@@ -18,3 +20,6 @@ Route::post('/auth/register/personnel', [RegisterPersonnelController::class, 're
 Route::get('/secretariats', function () {
     return \App\Models\Secretariat::select('id', 'nom', 'prenom', 'email', 'telephone')->get();
 });
+
+Route::get('/activites', [ActiviteController::class, 'index']);
+Route::get('/activites/{id}', [ActiviteController::class, 'show']);
