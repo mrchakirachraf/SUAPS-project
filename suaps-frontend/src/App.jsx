@@ -22,7 +22,7 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/activities" element={<ActivitiesList />} />
+        <Route path="/ActivitiesList" element={<ActivitiesList />} />
       </Routes>
     </>
   );
