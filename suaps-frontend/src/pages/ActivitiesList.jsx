@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
+
+
 const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
+
+const DAYS_ORDER = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
+const STATUTS_ORDER = ["ouverte","fermee"];
+const PERIODES_ORDER = ["S1","S2"];
 
 function Badge({ children }) {
   return (
@@ -121,29 +127,71 @@ export default function ActivitiesList() {
   const [type, setType] = useState("");
   const [statut, setStatut] = useState("");
 
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [total, setTotal] = useState(0);
+
+  const [categories, setCategories] = useState([]);
+  const [sites, setSites] = useState([]);
+  const [types, setTypes] = useState([]);
+  const [perPage, setPerPage] = useState(10);
+
   useEffect(() => {
     const controller = new AbortController();
 
-    async function load() {
+    async function loadAll() {
       try {
         setLoading(true);
         setErr("");
 
-        // If your API is protected, add token:
         const token = localStorage.getItem("access_token");
+        const headers = {
+          Accept: "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
 
-        const res = await fetch(`${API}/api/activites`, {
-          signal: controller.signal,
-          headers: {
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
+        // ✅ Build query params for backend filtering + pagination
+        const params = new URLSearchParams();
+        params.set("page", String(page));
+        params.set("per_page", String(perPage));
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data?.message || "Impossible de charger les activités.");
+        if (q.trim()) params.set("search", q.trim());
+        if (categorie) params.set("categorie", categorie);
+        if (site) params.set("site", site);
+        if (jour) params.set("jour", jour);
+        if (periode) params.set("periode", periode);
+        if (type) params.set("type", type);
+        if (statut) params.set("statut", statut);
 
-        setItems(Array.isArray(data) ? data : data.data ?? []);
+        const actUrl = `${API}/api/activites?${params.toString()}`;
+
+        const [actRes, catRes, siteRes, typeRes] = await Promise.all([
+          fetch(actUrl, { signal: controller.signal, headers }),
+          fetch(`${API}/api/categories`, { signal: controller.signal, headers }),
+          fetch(`${API}/api/sites`, { signal: controller.signal, headers }),
+          fetch(`${API}/api/type-evenements`, { signal: controller.signal, headers }),
+        ]);
+
+        const acts = await actRes.json();
+        const cats = await catRes.json();
+        const sis = await siteRes.json();
+        const tys = await typeRes.json();
+
+        if (!actRes.ok) throw new Error(acts?.message || "Impossible de charger les activités.");
+        if (!catRes.ok) throw new Error(cats?.message || "Impossible de charger les catégories.");
+        if (!siteRes.ok) throw new Error(sis?.message || "Impossible de charger les sites.");
+        if (!typeRes.ok) throw new Error(tys?.message || "Impossible de charger les types.");
+
+        // ✅ Laravel paginate() returns { data, current_page, last_page, total, ... }
+        const activities = acts?.data ?? [];
+        setItems(activities);
+        setLastPage(acts?.last_page ?? 1);
+        setTotal(acts?.total ?? activities.length);
+
+        setCategories(Array.isArray(cats) ? cats : cats.data ?? []);
+        setSites(Array.isArray(sis) ? sis : sis.data ?? []);
+        setTypes(Array.isArray(tys) ? tys : tys.data ?? []);
+
       } catch (e) {
         if (e.name !== "AbortError") setErr(e.message || "Erreur réseau.");
       } finally {
@@ -151,43 +199,26 @@ export default function ActivitiesList() {
       }
     }
 
-    load();
+
+    loadAll();
     return () => controller.abort();
-  }, []);
+  }, [page, perPage, q, categorie, site, jour, periode, type, statut]);
+
+
+  useEffect(() => {
+    setPage(1);
+  }, [q, categorie, site, jour, periode, type, statut, perPage]);
 
   const optionSets = useMemo(() => {
-    const uniq = (arr) => Array.from(new Set(arr.filter(Boolean))).sort();
-    const cat = uniq(items.map((a) => a.categorie?.nom));
-    const si = uniq(items.map((a) => a.site?.nom));
-    const j = uniq(items.map((a) => a.jour));
-    const p = uniq(items.map((a) => a.periode));
-    const t = uniq(items.map((a) => a.type_evenement?.libelle ?? a.typeEvenement?.libelle));
-    const s = uniq(items.map((a) => a.statut));
-    return { cat, si, j, p, t, s };
-  }, [items]);
+    return {
+      j: DAYS_ORDER,
+      p: PERIODES_ORDER,
+      s: STATUTS_ORDER,
+    };
+  }, []);
 
-  const filtered = useMemo(() => {
-    const qLower = q.trim().toLowerCase();
 
-    return items.filter((a) => {
-      const okQ =
-        !qLower ||
-        (a.libelle ?? "").toLowerCase().includes(qLower) ||
-        (a.lieu ?? "").toLowerCase().includes(qLower) ||
-        (a.categorie?.nom ?? "").toLowerCase().includes(qLower) ||
-        (a.site?.nom ?? "").toLowerCase().includes(qLower);
-
-      const okCat = !categorie || a.categorie?.nom === categorie;
-      const okSite = !site || a.site?.nom === site;
-      const okJour = !jour || a.jour === jour;
-      const okPeriode = !periode || a.periode === periode;
-      const aType = a.type_evenement?.libelle ?? a.typeEvenement?.libelle;
-      const okType = !type || aType === type;
-      const okStatut = !statut || a.statut === statut;
-
-      return okQ && okCat && okSite && okJour && okPeriode && okType && okStatut;
-    });
-  }, [items, q, categorie, site, jour, periode, type, statut]);
+  
 
   return (
     <main className="relative min-h-screen text-slate-900">
@@ -218,7 +249,7 @@ export default function ActivitiesList() {
           </div>
 
           <div className="text-sm text-slate-600">
-            Total : <span className="font-extrabold text-slate-900">{filtered.length}</span>
+            Total : <span className="font-extrabold text-slate-900">{total}</span>
           </div>
         </div>
 
@@ -239,13 +270,19 @@ export default function ActivitiesList() {
               label="Catégorie"
               value={categorie}
               onChange={setCategorie}
-              options={[{ value: "", label: "Toutes" }, ...optionSets.cat.map((x) => ({ value: x, label: x }))]}
+              options={[
+                { value: "", label: "Toutes" },
+                ...categories.map((c) => ({ value: c.nom, label: c.nom })),
+              ]}
             />
             <Select
               label="Site"
               value={site}
               onChange={setSite}
-              options={[{ value: "", label: "Tous" }, ...optionSets.si.map((x) => ({ value: x, label: x }))]}
+              options={[
+                { value: "", label: "Tous" },
+                ...sites.map((s) => ({ value: s.nom, label: s.nom })),
+              ]}
             />
             <Select
               label="Jour"
@@ -263,13 +300,28 @@ export default function ActivitiesList() {
               label="Type"
               value={type}
               onChange={setType}
-              options={[{ value: "", label: "Tous" }, ...optionSets.t.map((x) => ({ value: x, label: x }))]}
+              options={[
+                { value: "", label: "Tous" },
+                ...types.map((t) => ({ value: t.libelle, label: t.libelle })),
+              ]}
             />
             <Select
               label="Statut"
               value={statut}
               onChange={setStatut}
               options={[{ value: "", label: "Tous" }, ...optionSets.s.map((x) => ({ value: x, label: x }))]}
+            />
+
+            <Select
+              label="Par page"
+              value={String(perPage)}
+              onChange={(v) => setPerPage(Number(v))}
+              options={[
+                { value: "5", label: "5" },
+                { value: "10", label: "10" },
+                { value: "20", label: "20" },
+                { value: "50", label: "50" },
+              ]}
             />
           </div>
 
@@ -312,17 +364,45 @@ export default function ActivitiesList() {
         {/* List */}
         {!loading && !err && (
           <div className="mt-8 grid gap-5 md:grid-cols-2">
-            {filtered.map((a) => (
+            {items.map((a) => (
               <ActivityCard key={a.id} a={a} />
             ))}
-            {filtered.length === 0 && (
+            {items.length === 0 && (
               <div className="md:col-span-2 rounded-3xl border border-slate-200 bg-white/70 p-6 text-sm text-slate-600 shadow-sm backdrop-blur-md">
                 Aucune activité ne correspond à vos filtres.
               </div>
             )}
           </div>
         )}
+
+        <div className="mt-8 flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
+  <div className="text-sm text-slate-600">
+    Page <span className="font-extrabold text-slate-900">{page}</span> /{" "}
+    <span className="font-extrabold text-slate-900">{lastPage}</span>{" "}
+    <span className="ml-2">• Total : <span className="font-extrabold text-slate-900">{total}</span></span>
+  </div>
+
+  <div className="flex items-center gap-2">
+    <button
+      disabled={page <= 1}
+      onClick={() => setPage((p) => Math.max(1, p - 1))}
+      className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+    >
+      ← Précédent
+    </button>
+
+    <button
+      disabled={page >= lastPage}
+      onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+      className="rounded-xl bg-[#334155] px-4 py-2 text-sm font-extrabold text-white hover:bg-[#1e293b] disabled:opacity-50"
+    >
+      Suivant →
+    </button>
+  </div>
+</div>
+
       </div>
+      
     </main>
   );
 }
