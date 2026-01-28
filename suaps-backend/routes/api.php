@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterPersonnelController;
 use App\Http\Controllers\ActiviteController;
+use App\Http\Controllers\Auth\RegisterMoniteurController;
+
 
 
 
@@ -23,3 +25,4 @@ Route::get('/secretariats', function () {
 
 Route::get('/activites', [ActiviteController::class, 'index']);
 Route::get('/activites/{id}', [ActiviteController::class, 'show']);
+Route::post('/auth/register/moniteur', [RegisterMoniteurController::class, 'register']);
