@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 
-
+import { Link } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
 const DAYS_ORDER = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
 const STATUTS_ORDER = ["ouverte","fermee"];
 const PERIODES_ORDER = ["S1","S2"];
+
+
+
 
 function Badge({ children }) {
   return (
@@ -105,9 +108,15 @@ function ActivityCard({ a }) {
       </div>
 
       <div className="mt-5 flex items-center justify-end">
-        <button className="rounded-xl bg-[#334155] px-4 py-2 text-sm font-extrabold text-white hover:bg-[#1e293b]">
-          Voir détails
-        </button>
+        <div className="mt-5 flex items-center justify-end">
+          <Link
+            to={`/activities/${a.id}`}
+            className="rounded-xl bg-[#334155] px-4 py-2 text-sm font-extrabold text-white hover:bg-[#1e293b]"
+          >
+            Voir détails
+          </Link>
+        </div>
+
       </div>
     </article>
   );
@@ -135,6 +144,10 @@ export default function ActivitiesList() {
   const [sites, setSites] = useState([]);
   const [types, setTypes] = useState([]);
   const [perPage, setPerPage] = useState(10);
+
+  const [canAddActivity, setCanAddActivity] = useState(false);
+
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -206,17 +219,81 @@ export default function ActivitiesList() {
 
 
   useEffect(() => {
-    setPage(1);
-  }, [q, categorie, site, jour, periode, type, statut, perPage]);
+      setPage(1);
+    }, [q, categorie, site, jour, periode, type, statut, perPage]);
 
-  const optionSets = useMemo(() => {
-    return {
-      j: DAYS_ORDER,
-      p: PERIODES_ORDER,
-      s: STATUTS_ORDER,
+    const optionSets = useMemo(() => {
+      return {
+        j: DAYS_ORDER,
+        p: PERIODES_ORDER,
+        s: STATUTS_ORDER,
+      };
+    }, []);
+
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = localStorage.getItem("user");
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const syncUser = () => {
+      try {
+        const raw = localStorage.getItem("user");
+        setUser(raw ? JSON.parse(raw) : null);
+      } catch {
+        setUser(null);
+      }
+    };
+
+    window.addEventListener("auth:changed", syncUser);
+    window.addEventListener("storage", syncUser);
+
+    return () => {
+      window.removeEventListener("auth:changed", syncUser);
+      window.removeEventListener("storage", syncUser);
     };
   }, []);
 
+
+  useEffect(() => {
+    async function checkPermission() {
+      try {
+        const token = localStorage.getItem("access_token");
+        if (!token) return setCanAddActivity(false);
+
+        const res = await fetch(`${API}/api/moniteurs/me`, {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+        console.log("moniteurs/me status:", res.status);
+        console.log("moniteurs/me data:", data);
+
+        if (!res.ok) return setCanAddActivity(false);
+
+        setCanAddActivity(Boolean(data.is_moniteur && data.is_suaps));
+      } catch (e) {
+        console.error("Error checking permission:", e);
+        setCanAddActivity(false);
+      }
+    }
+
+    checkPermission();
+  }, []);
+
+
+
+
+  // console.log("user:", user);
+ 
+  // console.log(JSON.parse(localStorage.getItem("user")));
 
   
 
@@ -383,25 +460,73 @@ export default function ActivitiesList() {
   </div>
 
   <div className="flex items-center gap-2">
-    <button
-      disabled={page <= 1}
-      onClick={() => setPage((p) => Math.max(1, p - 1))}
-      className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-    >
-      ← Précédent
-    </button>
+      <button
+        disabled={page <= 1}
+        onClick={() => setPage((p) => Math.max(1, p - 1))}
+        className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+      >
+        ← Précédent
+      </button>
 
-    <button
-      disabled={page >= lastPage}
-      onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
-      className="rounded-xl bg-[#334155] px-4 py-2 text-sm font-extrabold text-white hover:bg-[#1e293b] disabled:opacity-50"
-    >
-      Suivant →
-    </button>
-  </div>
+      <button
+        disabled={page >= lastPage}
+        onClick={() => setPage((p) => Math.min(lastPage, p + 1))}
+        className="rounded-xl bg-[#334155] px-4 py-2 text-sm font-extrabold text-white hover:bg-[#1e293b] disabled:opacity-50"
+      >
+        Suivant →
+      </button>
+    </div>
 </div>
 
       </div>
+          {/* ✅ Floating Add Activity button (only for moniteur SUAPS) */}
+      
+      {canAddActivity && (
+        <Link
+          to="/activities/new"
+          className="
+            group fixed bottom-6 right-6 z-50
+            flex items-center justify-center
+            h-14 w-14
+            rounded-full bg-[#334155] text-white shadow-lg
+            transition-all duration-300 ease-out
+            hover:w-56 hover:rounded-2xl hover:shadow-xl
+            active:scale-95
+            overflow-hidden
+          "
+          aria-label="Ajouter une activité"
+        >
+          {/* PLUS */}
+          <span
+            className="
+              flex items-center justify-center
+              text-3xl font-black
+              leading-none
+              select-none
+            "
+          >
+            +
+          </span>
+
+          {/* TEXT */}
+          <span
+            className="
+              ml-0 max-w-0 overflow-hidden whitespace-nowrap
+              text-sm font-extrabold
+              transition-all duration-300
+              group-hover:ml-3 group-hover:max-w-[200px]
+            "
+          >
+            Ajouter une activité
+          </span>
+        </Link>
+      )}
+
+
+
+
+
+
       
     </main>
   );

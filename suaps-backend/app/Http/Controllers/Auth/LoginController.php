@@ -17,7 +17,10 @@ class LoginController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $credentials['email'])->first();
+        $user = User::with(['moniteur', 'personnel', 'etudiant'])
+            ->where('email', $credentials['email'])
+            ->first();
+
 
         if (! $user || ! Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
@@ -39,7 +42,22 @@ class LoginController extends Controller
                 'id' => $user->id,
                 'username' => $user->username,
                 'email' => $user->email,
+
+                // ✅ important pour le front
+                'moniteur' => $user->moniteur ? [
+                    'id' => $user->moniteur->id,
+                    'is_suaps' => (bool) $user->moniteur->is_suaps,
+                ] : null,
+
+                'personnel' => $user->personnel ? [
+                    'id' => $user->personnel->id,
+                ] : null,
+
+                'etudiant' => $user->etudiant ? [
+                    'id' => $user->etudiant->id,
+                ] : null,
             ],
         ]);
+
     }
 }

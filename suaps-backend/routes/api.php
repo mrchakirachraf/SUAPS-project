@@ -14,6 +14,11 @@ use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\TypeEvenementController;
 use App\Http\Controllers\SiteController;
 
+use App\Http\Controllers\MoniteurController;
+
+Route::get('/moniteurs', [MoniteurController::class, 'index']);
+Route::middleware('auth:sanctum')->get('/moniteurs/me', [MoniteurController::class, 'me']);
+Route::get('/moniteurs/{id}', [MoniteurController::class, 'show']);
 
 
 

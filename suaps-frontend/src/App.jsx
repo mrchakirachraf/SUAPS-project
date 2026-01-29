@@ -4,14 +4,12 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import ActivitiesList from "./pages/ActivitiesList";
-
+import CreateActivity from "./pages/CreateActivity";
+import ActivityDetails from "./pages/ActivityDetails";
 
 function AppContent() {
   const location = useLocation();
-
-  // routes where Navbar should be hidden
   const hideNavbarRoutes = ["/login", "/register"];
-
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
 
   return (
@@ -22,7 +20,11 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/ActivitiesList" element={<ActivitiesList />} />
+
+        <Route path="/activities" element={<ActivitiesList />} />
+        <Route path="/activities/new" element={<CreateActivity />} />
+        <Route path="/activities/:id" element={<ActivityDetails />} />
+
       </Routes>
     </>
   );
