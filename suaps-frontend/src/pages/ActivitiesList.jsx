@@ -7,6 +7,12 @@ const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 const DAYS_ORDER = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
 const STATUTS_ORDER = ["ouverte","fermee"];
 const PERIODES_ORDER = ["S1","S2"];
+const TYPES_ACTIVITE = [
+  "évaluée",
+  "competitif",
+  "non évaluée",
+  "évaluée/competitive",
+];
 
 
 
@@ -53,6 +59,9 @@ function ActivityCard({ a }) {
   const visible = a.visible === 1 || a.visible === true;
   const statut = a.statut ?? "—";
 
+  const typeActivite = a.type_activite ?? "—";
+
+
   return (
     <article className="rounded-3xl border border-slate-200 bg-white/75 p-5 shadow-sm backdrop-blur-md transition hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
@@ -86,6 +95,14 @@ function ActivityCard({ a }) {
           <div className="text-xs font-semibold text-slate-500">Type</div>
           <div className="mt-1 font-semibold text-slate-900">{type}</div>
         </div>
+
+        <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
+          <div className="text-xs font-semibold text-slate-500">Type d’activité</div>
+          <div className="mt-1 font-semibold text-slate-900">
+            {typeActivite}
+          </div>
+        </div>
+
 
         <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
           <div className="text-xs font-semibold text-slate-500">Quota</div>
@@ -147,6 +164,10 @@ export default function ActivitiesList() {
 
   const [canAddActivity, setCanAddActivity] = useState(false);
 
+  const [typeActivite, setTypeActivite] = useState("");
+
+
+
 
 
   useEffect(() => {
@@ -175,6 +196,8 @@ export default function ActivitiesList() {
         if (periode) params.set("periode", periode);
         if (type) params.set("type", type);
         if (statut) params.set("statut", statut);
+        if (typeActivite) params.set("type_activite", typeActivite);
+
 
         const actUrl = `${API}/api/activites?${params.toString()}`;
 
@@ -215,12 +238,12 @@ export default function ActivitiesList() {
 
     loadAll();
     return () => controller.abort();
-  }, [page, perPage, q, categorie, site, jour, periode, type, statut]);
+  }, [page, perPage, q, categorie, site, jour, periode, type, typeActivite, statut]);
 
 
   useEffect(() => {
       setPage(1);
-    }, [q, categorie, site, jour, periode, type, statut, perPage]);
+    }, [q, categorie, site, jour, periode, type, typeActivite, statut, perPage]);
 
     const optionSets = useMemo(() => {
       return {
@@ -382,6 +405,17 @@ export default function ActivitiesList() {
                 ...types.map((t) => ({ value: t.libelle, label: t.libelle })),
               ]}
             />
+
+            <Select
+              label="Type d’activité"
+              value={typeActivite}
+              onChange={setTypeActivite}
+              options={[
+                { value: "", label: "Tous" },
+                ...TYPES_ACTIVITE.map((t) => ({ value: t, label: t })),
+              ]}
+            />
+
             <Select
               label="Statut"
               value={statut}
@@ -413,6 +447,7 @@ export default function ActivitiesList() {
                 setPeriode("");
                 setType("");
                 setStatut("");
+                setTypeActivite("");
               }}
               className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
             >

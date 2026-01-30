@@ -16,6 +16,13 @@ use App\Http\Controllers\SiteController;
 
 use App\Http\Controllers\MoniteurController;
 
+use App\Http\Controllers\InscriptionController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/activites/{id}/inscriptions', [InscriptionController::class, 'register']);
+    Route::get('/activites/{id}/inscriptions', [InscriptionController::class, 'listInscrits']);
+});
+
 Route::get('/moniteurs', [MoniteurController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/moniteurs/me', [MoniteurController::class, 'me']);
 Route::get('/moniteurs/{id}', [MoniteurController::class, 'show']);

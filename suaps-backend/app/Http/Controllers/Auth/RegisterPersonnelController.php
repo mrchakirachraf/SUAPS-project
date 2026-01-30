@@ -37,6 +37,7 @@ class RegisterPersonnelController extends Controller
                 'prenom' => $validated['prenom'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'type_compte' => 'personnel',
             ]);
 
             // 👔 personnel

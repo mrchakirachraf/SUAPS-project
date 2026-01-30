@@ -15,12 +15,16 @@ class Inscription extends Model
         'date_inscription_def',
         'statut',
         'num_tel_etud',
-        'etudiant_id',
+        'user_id',
         'activite_id',
     ];
 
     public function etudiant() {
         return $this->belongsTo(Etudiant::class);
+    }
+
+    public function personnel() {
+        return $this->belongsTo(Personnel::class);
     }
 
     public function moniteur()
@@ -30,5 +34,9 @@ class Inscription extends Model
 
     public function activite() {
         return $this->belongsTo(Activite::class);
+    }
+
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 }

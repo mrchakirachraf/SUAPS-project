@@ -20,6 +20,7 @@ class User extends Authenticatable
         'prenom',
         'email',
         'password',
+        'type_compte',
     ];
 
     /**
@@ -61,6 +62,10 @@ class User extends Authenticatable
         return $this->hasOne(Personnel::class);
     }
 
-    
+    public function inscriptions()
+    {
+        return $this->hasMany(Inscription::class);
+    }
+
 
 }

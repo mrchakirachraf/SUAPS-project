@@ -32,6 +32,15 @@ class ActiviteController extends Controller
             'categorie' => ['nullable', 'string', 'max:100'],
             'site'      => ['nullable', 'string', 'max:100'],
             'type'      => ['nullable', 'string', 'max:100'],
+            'type_activite' => [
+                'nullable',
+                Rule::in([
+                    'évaluée',
+                    'competitif',
+                    'non évaluée',
+                    'évaluée/competitive'
+                ])
+            ],
             'jour'    => ['nullable', Rule::in(['tous','lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'])],
             'periode' => ['nullable', Rule::in(['tous','S1','S2'])],
             'statut'  => ['nullable', Rule::in(['tous','ouverte','fermee'])],
@@ -76,6 +85,13 @@ class ActiviteController extends Controller
                 $type = $validated['type'];
                 $q->whereHas('typeEvenement', fn ($qt) => $qt->where('libelle', $type));
             })
+            // filtres by type activité
+            ->when(
+                !empty($validated['type_activite'] ?? null),
+                fn ($q) => $q->where('type_activite', $validated['type_activite'])
+            )
+
+
             // ✅ filtres directs
             ->when(!empty($validated['jour'] ?? null) && $validated['jour'] !== 'tous',
                 fn ($q) => $q->where('jour', $validated['jour'])

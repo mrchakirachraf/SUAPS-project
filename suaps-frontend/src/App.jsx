@@ -11,6 +11,7 @@ function AppContent() {
   const location = useLocation();
   const hideNavbarRoutes = ["/login", "/register"];
   const hideNavbar = hideNavbarRoutes.includes(location.pathname);
+  
 
   return (
     <>

@@ -21,11 +21,11 @@ return new class extends Migration
             $table->string('num_tel_etud')->nullable();
 
             $table->foreignId('moniteur_id')->constrained('moniteurs');
-            $table->foreignId('etudiant_id')->constrained();
+            $table->foreignId('user_id')->constrained();
             $table->foreignId('activite_id')->constrained();
 
             $table->timestamps();
-            $table->unique(['etudiant_id', 'activite_id']);
+            $table->unique(['user_id', 'activite_id']);
         });
     }
 

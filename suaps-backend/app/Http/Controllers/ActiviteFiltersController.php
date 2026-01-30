@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Activite;
 use App\Models\Categorie;
 use App\Models\Site;
 use App\Models\TypeEvenement;
-use Illuminate\Support\Facades\DB;
 
 class ActiviteFiltersController extends Controller
 {
     public function index()
     {
-        // 🔹 ENUMS directement depuis la structure de la table
+        // 🔹 ENUMS (backend source of truth)
         $jours = [
             'lundi', 'mardi', 'mercredi',
             'jeudi', 'vendredi', 'samedi', 'dimanche'
@@ -22,15 +20,23 @@ class ActiviteFiltersController extends Controller
 
         $statuts = ['ouverte', 'fermee'];
 
-        return response()->json([
-            "categories" => Categorie::orderBy('nom')->get(),
-            "sites"      => Site::orderBy('nom')->get(),
-            "types"      => TypeEvenement::orderBy('libelle')->get(),
+        $typesActivite = [
+            'évaluée',
+            'competitif',
+            'non évaluée',
+            'évaluée/competitive'
+        ];
 
-            // ENUMS (source backend)
-            "jours"      => $jours,
-            "periodes"   => $periodes,
-            "statuts"    => $statuts,
+        return response()->json([
+            "categories"     => Categorie::orderBy('nom')->get(),
+            "sites"          => Site::orderBy('nom')->get(),
+            "types"          => TypeEvenement::orderBy('libelle')->get(),
+
+            // ENUMS
+            "jours"          => $jours,
+            "periodes"       => $periodes,
+            "statuts"        => $statuts,
+            "types_activite" => $typesActivite,
         ]);
     }
 }

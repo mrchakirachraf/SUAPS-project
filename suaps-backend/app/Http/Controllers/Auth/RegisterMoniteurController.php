@@ -29,6 +29,7 @@ class RegisterMoniteurController extends Controller
                 'prenom' => $validated['prenom'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'type_compte' => 'moniteur',
             ]);
 
             $moniteur = Moniteur::create([

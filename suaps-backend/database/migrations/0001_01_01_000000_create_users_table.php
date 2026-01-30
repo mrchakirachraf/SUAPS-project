@@ -24,6 +24,8 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
 
+            $table->enum('type_compte', ['etudiant', 'personnel', 'moniteur', 'suaps']);
+
 
             $table->rememberToken();
             $table->timestamps();

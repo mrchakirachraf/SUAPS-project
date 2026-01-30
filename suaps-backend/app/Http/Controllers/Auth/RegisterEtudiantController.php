@@ -39,6 +39,7 @@ class RegisterEtudiantController extends Controller
                 'prenom' => $validated['prenom'],
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
+                'type_compte' => 'etudiant',
             ]);
 
             // Stockage de l'image

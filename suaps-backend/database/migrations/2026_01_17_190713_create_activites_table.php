@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('activites', function (Blueprint $table) {
@@ -16,7 +13,9 @@ return new class extends Migration
 
             // Infos générales
             $table->string('libelle');
-            $table->string('horaire');
+            $table->string('horaire')->nullable();
+            $table->string('lieu')->nullable();
+            $table->text('commentaire')->nullable();
 
             // Organisation temporelle
             $table->enum('periode', ['S1', 'S2']);
@@ -28,13 +27,22 @@ return new class extends Migration
                 'vendredi',
                 'samedi',
                 'dimanche'
-            ])->nullable(); // null si événement ponctuel
+            ])->nullable();
 
-            $table->string('lieu')->nullable();
+            // Type d’activité
+            $table->enum('type_activite', [
+                'évaluée',
+                'competitif',
+                'non évaluée',
+                'évaluée/competitive'
+            ]);
+
+            // Description pré-inscription
+            $table->text('description_pre_inscription')->nullable();
 
             // Quotas
-            $table->integer('quota_etudiant');
-            $table->integer('quota_personnel');
+            $table->integer('quota_etudiant')->nullable();
+            $table->integer('quota_personnel')->nullable();
 
             // Dates limites S1
             $table->date('date_limite_inscription_s1')->nullable();
@@ -49,18 +57,15 @@ return new class extends Migration
             $table->boolean('visible')->default(true);
 
             // Relations
-            $table->foreignId('categorie_id')->constrained();
-            $table->foreignId('site_id')->constrained();
-            $table->foreignId('type_evenement_id')->constrained();
-            $table->foreignId('moniteur_id')->constrained('moniteurs');
+            $table->foreignId('categorie_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('site_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('type_evenement_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('moniteur_id')->constrained('moniteurs')->cascadeOnDelete();
 
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('activites');
