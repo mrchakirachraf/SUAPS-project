@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Moniteur;
+use App\Models\Inscription;
+use App\Models\Activite;
+use App\Models\Evaluation;
+use Illuminate\Support\Facades\DB;
+
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -61,4 +66,89 @@ class MoniteurController extends Controller
             'moniteur' => $moniteur,
         ]);
     }
+
+    public function preInscrits($activiteId, Request $request)
+    {
+        $user = $request->user(); // moniteur connecté
+
+        $activite = Activite::with(['inscriptions.user'])->findOrFail($activiteId);
+
+        // Vérifie que l'activité appartient bien au moniteur
+        if ($activite->moniteur_id !== $user->id) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        // Pré-inscrits = statut "en_cours"
+        $preInscrits = $activite->inscriptions()
+            ->where('statut', 'en_cours')
+            ->with('user')
+            ->get()
+            ->map(function ($ins) {
+                return [
+                    'id' => $ins->id,
+                    'user_id' => $ins->user_id,
+                    'nom' => $ins->user->nom ?? $ins->user->username,
+                    'prenom' => $ins->user->prenom ?? "",
+                    'num_tel_etud' => $ins->num_tel_etud,
+                    'date_pre_inscription' => $ins->date_pre_inscription,
+                ];
+            });
+
+        return response()->json([
+            'activite_id' => $activite->id,
+            'libelle' => $activite->libelle,
+            'preInscrits' => $preInscrits,
+        ]);
+    }
+
+    /**
+     * POST /api/inscriptions/{id}/valider
+     * Valider ou refuser un pré-inscrit + noter
+     * Body: { action: 'valider'|'refuser', note: optional }
+     */
+    public function validerInscription(Request $request, $inscriptionId)
+    {
+        $user = $request->user(); // moniteur connecté
+        $validated = $request->validate([
+            'action' => 'required|in:valider,refuser',
+            'note' => 'nullable|numeric|min:0|max:20',
+        ]);
+
+        $inscription = Inscription::findOrFail($inscriptionId);
+        $activite = $inscription->activite;
+
+        // Vérifie que le moniteur est propriétaire
+        if ($activite->moniteur_id !== $user->id) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        DB::transaction(function () use ($inscription, $validated, $user) {
+            if ($validated['action'] === 'valider') {
+                $inscription->statut = 'validée';
+                $inscription->date_inscription_def = now();
+                $inscription->save();
+
+                // Crée ou met à jour l'évaluation si note fournie
+                if (isset($validated['note'])) {
+                    $evaluation = Evaluation::updateOrCreate(
+                        [
+                            'activite_id' => $inscription->activite_id,
+                            'etudiant_id' => $inscription->user_id,
+                            'moniteur_id' => $inscription->moniteur_id
+                        ],
+                        ['note' => $validated['note']]
+                    );
+                }
+            } else {
+                $inscription->statut = 'refusée';
+                $inscription->save();
+            }
+        });
+
+        return response()->json(['message' => 'Action effectuée avec succès']);
+    }
+
+
+
+
 }

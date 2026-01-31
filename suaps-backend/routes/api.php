@@ -41,6 +41,10 @@ Route::get('/secretariats', function () {
 Route::get('/activites', [ActiviteController::class, 'index']);
 Route::get('/activites/{id}', [ActiviteController::class, 'show']);
 Route::get('/activites/filters', [ActiviteFiltersController::class, 'index']);
+Route::middleware('auth:sanctum')->get(
+    '/activites/{id}/preinscrits',
+    [MoniteurController::class, 'preInscrits']
+);
 
 Route::post('/auth/register/moniteur', [RegisterMoniteurController::class, 'register']);
 

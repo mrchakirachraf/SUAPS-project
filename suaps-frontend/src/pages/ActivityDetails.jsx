@@ -214,7 +214,7 @@ export default function ActivityDetails() {
                       ${
                         isQuotaFull
                           ? "cursor-not-allowed bg-slate-200 text-slate-500"
-                          : "bg-[#205187] text-white hover:bg-[#163b63]"
+                          : "bg-[#334155]  text-white hover:bg-[#1e293b]"
                       }`}
                   >
                     {isQuotaFull
@@ -223,6 +223,19 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
+              {console.log(user )}
+              {user.id === activity.moniteur_id && (
+                <>
+                  <div className="mt-6 h-px bg-slate-200" />
+                  <button
+                    onClick={() => navigate(`/activities/${id}/preinscrits`)}
+                    className="mt-4 w-full rounded-xl bg-[#334155] px-4 py-3 text-sm font-extrabold text-white hover:bg-[#1e293b]"
+                  >
+                    Voir les pré-inscrits
+                  </button>
+                </>
+              )}
+
 
             </aside>
           </div>

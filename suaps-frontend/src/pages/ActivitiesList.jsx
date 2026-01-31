@@ -6,7 +6,7 @@ const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
 const DAYS_ORDER = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
 const STATUTS_ORDER = ["ouverte","fermee"];
-const PERIODES_ORDER = ["S1","S2"];
+const PERIODES_ORDER = ["S1","S2","S1/S2"];
 const TYPES_ACTIVITE = [
   "évaluée",
   "competitif",

@@ -16,7 +16,7 @@ class ActiviteFiltersController extends Controller
             'jeudi', 'vendredi', 'samedi', 'dimanche'
         ];
 
-        $periodes = ['S1', 'S2'];
+        $periodes = ['S1', 'S2', 'S1/S2'];
 
         $statuts = ['ouverte', 'fermee'];
 

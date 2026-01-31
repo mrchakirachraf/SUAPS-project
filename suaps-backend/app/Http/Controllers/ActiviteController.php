@@ -42,7 +42,7 @@ class ActiviteController extends Controller
                 ])
             ],
             'jour'    => ['nullable', Rule::in(['tous','lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'])],
-            'periode' => ['nullable', Rule::in(['tous','S1','S2'])],
+            'periode' => ['nullable', Rule::in(['tous','S1','S2', 'S1/S2'])],
             'statut'  => ['nullable', Rule::in(['tous','ouverte','fermee'])],
             'visible'   => ['nullable', Rule::in(['0', '1', 0, 1, true, false])],
         ]);
