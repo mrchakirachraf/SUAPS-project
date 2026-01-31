@@ -6,6 +6,7 @@ import Register from "./pages/Register";
 import ActivitiesList from "./pages/ActivitiesList";
 import CreateActivity from "./pages/CreateActivity";
 import ActivityDetails from "./pages/ActivityDetails";
+import ActivityRegister from "./pages/ActivityRegister";
 
 function AppContent() {
   const location = useLocation();
@@ -25,6 +26,8 @@ function AppContent() {
         <Route path="/activities" element={<ActivitiesList />} />
         <Route path="/activities/new" element={<CreateActivity />} />
         <Route path="/activities/:id" element={<ActivityDetails />} />
+        <Route path="//activities/:id/register" element={<ActivityRegister />} />
+
 
       </Routes>
     </>

@@ -13,6 +13,7 @@ class Inscription extends Model
     protected $fillable = [
         'date_pre_inscription',
         'date_inscription_def',
+        'moniteur_id',
         'statut',
         'num_tel_etud',
         'user_id',

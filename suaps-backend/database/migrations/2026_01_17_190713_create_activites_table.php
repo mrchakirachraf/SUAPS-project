@@ -18,7 +18,7 @@ return new class extends Migration
             $table->text('commentaire')->nullable();
 
             // Organisation temporelle
-            $table->enum('periode', ['S1', 'S2']);
+            $table->enum('periode', ['S1', 'S2', 'S1/S2']);
             $table->enum('jour', [
                 'lundi',
                 'mardi',

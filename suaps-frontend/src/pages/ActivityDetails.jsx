@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate , Link, useParams } from "react-router-dom";
 
 const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
@@ -24,6 +24,20 @@ export default function ActivityDetails() {
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  const canRegister =
+  user &&
+  (user.etudiant != null || user.personnel != null);
+  const isQuotaFull =
+    user?.etudiant != null
+      ? activity?.quota_etudiant <= 0
+      : user?.personnel != null
+      ? activity?.quota_personnel <= 0
+      : true;
+
+
 
   useEffect(() => {
     const controller = new AbortController();
@@ -188,6 +202,28 @@ export default function ActivityDetails() {
                   {Array.isArray(activity.evaluations) ? activity.evaluations.length : 0}
                 </span>
               </p>
+
+              {canRegister && (
+                <>
+                  <div className="mt-6 h-px bg-slate-200" />
+
+                  <button
+                    disabled={isQuotaFull}
+                    onClick={() => navigate(`/activities/${id}/register`)}
+                    className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-extrabold transition
+                      ${
+                        isQuotaFull
+                          ? "cursor-not-allowed bg-slate-200 text-slate-500"
+                          : "bg-[#205187] text-white hover:bg-[#163b63]"
+                      }`}
+                  >
+                    {isQuotaFull
+                      ? "Quota atteint"
+                      : "S’inscrire à cette activité"}
+                  </button>
+                </>
+              )}
+
             </aside>
           </div>
         )}
