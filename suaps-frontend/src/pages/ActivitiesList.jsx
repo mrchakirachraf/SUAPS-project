@@ -2,6 +2,35 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Link } from "react-router-dom";
 
+import { GiSportMedal } from "react-icons/gi";
+
+
+
+
+import {
+  GiSoccerBall,
+  GiBasketballBall,
+  GiVolleyballBall,
+  GiRunningShoe,
+  GiShuttlecock,
+  GiWaterSplash,      // for Natation (safe)
+  GiWeightLiftingUp,  // for Musculation (safe)
+  GiHand,             // for Handball (safe fallback)
+} from "react-icons/gi";
+
+const CATEGORY_ICONS = {
+  Football: GiSoccerBall,
+  Basketball: GiBasketballBall,
+  Handball: GiHand,             // fallback (since GiHandball may not exist)
+  Volleyball: GiVolleyballBall,
+  Natation: GiWaterSplash,      // safer than GiSwimfins (may not exist)
+  Musculation: GiWeightLiftingUp,
+  "Athlétisme": GiRunningShoe,
+  Badminton: GiShuttlecock,
+};
+
+const getCategoryIcon = (name) => CATEGORY_ICONS[name] ?? GiSportMedal;
+
 const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
 
 const DAYS_ORDER = ["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"];
@@ -25,24 +54,39 @@ function Badge({ children }) {
   );
 }
 
-function Select({ label, value, onChange, options }) {
+function Select({ label, value, onChange, options, iconForValue }) {
+  const Icon = iconForValue ? iconForValue(value) : null;
+
   return (
     <label className="block">
       <span className="mb-1 block text-xs font-semibold text-slate-600">{label}</span>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#205187] focus:ring-4 focus:ring-[#205187]/10"
-      >
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-3 py-2 pr-10 text-sm text-slate-900 outline-none focus:border-[#205187] focus:ring-4 focus:ring-[#205187]/10"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+
+        {/* Right icon */}
+        <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center gap-2 text-slate-500">
+          {Icon && value && <Icon className="text-lg" />}
+          {/* small chevron */}
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+            <path d="M5.25 7.5 10 12.25 14.75 7.5" stroke="currentColor" strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </div>
+      </div>
     </label>
   );
 }
+
 
 function formatDate(dateStr) {
   if (!dateStr) return "—";
@@ -51,7 +95,8 @@ function formatDate(dateStr) {
   return d.toLocaleDateString("fr-FR");
 }
 
-function ActivityCard({ a }) {
+function ActivityCard({ a, showQuota = false, showVisibility = false }) {
+  
   const categorie = a.categorie?.nom ?? "—";
   const site = a.site?.nom ?? "—";
   const type = a.type_evenement?.libelle ?? a.typeEvenement?.libelle ?? "—";
@@ -60,6 +105,8 @@ function ActivityCard({ a }) {
   const statut = a.statut ?? "—";
 
   const typeActivite = a.type_activite ?? "—";
+
+  const CategoryIcon = getCategoryIcon(categorie);
 
 
   return (
@@ -74,18 +121,36 @@ function ActivityCard({ a }) {
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <Badge>{categorie}</Badge>
-          <span
-            className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${
-              visible ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-slate-100 text-slate-600 border border-slate-200"
-            }`}
+          <div
+            className="flex items-center justify-center h-9 w-9 rounded-full
+                      border border-slate-200 bg-white/80 text-[#205187]"
+            title={categorie}
           >
-            {visible ? "Visible" : "Masquée"}
-          </span>
+            <CategoryIcon className="text-xl" />
+          </div>
+
+          {showVisibility && (
+            <span
+              className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold ${
+                visible
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-slate-100 text-slate-600 border border-slate-200"
+              }`}
+            >
+              {visible ? "Visible" : "Masquée"}
+            </span>
+          )}
         </div>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+      <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+         <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
+          <div className="text-xs font-semibold text-slate-500">Commentaire</div>
+          <div className="mt-1 font-semibold text-slate-900">
+            {a.commentaire ?? "—"}
+          </div>
+        </div>
+ 
         <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
           <div className="text-xs font-semibold text-slate-500">Lieu</div>
           <div className="mt-1 font-semibold text-slate-900">{a.lieu ?? site}</div>
@@ -104,12 +169,15 @@ function ActivityCard({ a }) {
         </div>
 
 
-        <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
-          <div className="text-xs font-semibold text-slate-500">Quota</div>
-          <div className="mt-1 font-semibold text-slate-900">
-            Étudiants: {a.quota_etudiant ?? "—"} • Pers.: {a.quota_personnel ?? "—"}
+        {showQuota && (
+          <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
+            <div className="text-xs font-semibold text-slate-500">Quota</div>
+            <div className="mt-1 font-semibold text-slate-900">
+              Étudiants: {a.quota_etudiant ?? "—"} • Pers.: {a.quota_personnel ?? "—"}
+            </div>
           </div>
-        </div>
+        )}
+
 
         <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
           <div className="text-xs font-semibold text-slate-500">Statut</div>
@@ -167,7 +235,100 @@ export default function ActivitiesList() {
   const [typeActivite, setTypeActivite] = useState("");
 
 
+  const [visibleFilter, setVisibleFilter] = useState(""); 
+  // "" => pas de filtre (backend: SUAPS voit tout / non-SUAPS voit visibles)
+  // "1" => visibles seulement
+  // "0" => masquées seulement
 
+  const [isMoniteur, setIsMoniteur] = useState(false);
+  const [isSuaps, setIsSuaps] = useState(false);
+
+  function CategoryDropdown({ label, value, onChange, options, getIcon }) {
+    const [open, setOpen] = useState(false);
+
+    const selected = options.find((o) => o.value === value) ?? options[0];
+    const SelectedIcon = selected?.value ? getIcon(selected.value) : null;
+
+    // close on outside click
+    useEffect(() => {
+      function onDocClick(e) {
+        // if click outside dropdown container => close
+        if (!e.target.closest?.("[data-cat-dd-root]")) setOpen(false);
+      }
+      document.addEventListener("mousedown", onDocClick);
+      return () => document.removeEventListener("mousedown", onDocClick);
+    }, []);
+
+    return (
+      <div className="block" data-cat-dd-root>
+        <span className="mb-1 block text-xs font-semibold text-slate-600">{label}</span>
+
+        {/* Button */}
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#205187] focus:ring-4 focus:ring-[#205187]/10"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <span className="truncate">{selected?.label ?? "—"}</span>
+            <div className="flex items-center gap-2 text-slate-500">
+              {SelectedIcon && value && <SelectedIcon className="text-lg" />}
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                aria-hidden="true"
+                className={`transition ${open ? "rotate-180" : ""}`}
+              >
+                <path
+                  d="M5.25 7.5 10 12.25 14.75 7.5"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          </div>
+        </button>
+
+        {/* Menu */}
+        {open && (
+          <div className="relative">
+            <div className="absolute z-50 mt-2 w-full overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg">
+              <ul className="max-h-64 overflow-auto py-1">
+                {options.map((o) => {
+                  const Icon = o.value ? getIcon(o.value) : null;
+                  const active = o.value === value;
+
+                  return (
+                    <li key={o.value}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onChange(o.value);
+                          setOpen(false);
+                        }}
+                        className={`flex w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm
+                          ${active ? "bg-slate-100 font-semibold" : "hover:bg-slate-50"}`}
+                      >
+                        <span className="truncate">{o.label}</span>
+                        <span className="text-slate-500">
+                          {Icon && o.value && <Icon className="text-lg" />}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
 
 
   useEffect(() => {
@@ -198,8 +359,15 @@ export default function ActivitiesList() {
         if (statut) params.set("statut", statut);
         if (typeActivite) params.set("type_activite", typeActivite);
 
+        if (canAddActivity && visibleFilter !== "") {
+          params.set("visible", visibleFilter);
+        }
 
-        const actUrl = `${API}/api/activites?${params.toString()}`;
+        const endpoint = canAddActivity ? "/api/activites/manage" : "/api/activites";
+        const actUrl = `${API}${endpoint}?${params.toString()}`;
+
+        console.log("FETCH:", actUrl, "token?", !!token, "canAddActivity:", canAddActivity, "visibleFilter:", visibleFilter);
+
 
         const [actRes, catRes, siteRes, typeRes] = await Promise.all([
           fetch(actUrl, { signal: controller.signal, headers }),
@@ -238,12 +406,13 @@ export default function ActivitiesList() {
 
     loadAll();
     return () => controller.abort();
-  }, [page, perPage, q, categorie, site, jour, periode, type, typeActivite, statut]);
+  }, [page, perPage, q, categorie, site, jour, periode, type, typeActivite, statut, canAddActivity, visibleFilter]);
+
 
 
   useEffect(() => {
       setPage(1);
-    }, [q, categorie, site, jour, periode, type, typeActivite, statut, perPage]);
+    }, [q, categorie, site, jour, periode, type, typeActivite, statut, perPage, visibleFilter]);
 
     const optionSets = useMemo(() => {
       return {
@@ -286,7 +455,12 @@ export default function ActivitiesList() {
     async function checkPermission() {
       try {
         const token = localStorage.getItem("access_token");
-        if (!token) return setCanAddActivity(false);
+        if (!token) {
+          setCanAddActivity(false);
+          setIsMoniteur(false);
+          setIsSuaps(false);
+          return;
+        }
 
         const res = await fetch(`${API}/api/moniteurs/me`, {
           headers: {
@@ -296,22 +470,37 @@ export default function ActivitiesList() {
         });
 
         const data = await res.json();
-        console.log("moniteurs/me status:", res.status);
-        console.log("moniteurs/me data:", data);
-
         if (!res.ok) return setCanAddActivity(false);
 
-        setCanAddActivity(Boolean(data.is_moniteur && data.is_suaps));
-      } catch (e) {
-        console.error("Error checking permission:", e);
+        const moniteur = Boolean(data.is_moniteur);
+        const suaps = Boolean(data.is_suaps);
+
+        setIsMoniteur(moniteur);
+        setIsSuaps(suaps);
+        setCanAddActivity(moniteur && suaps); // keep your existing logic
+
+      } catch {
         setCanAddActivity(false);
+        setIsMoniteur(false);
+        setIsSuaps(false);
       }
     }
 
     checkPermission();
+
+    const handler = () => checkPermission();
+    window.addEventListener("auth:changed", handler);
+    window.addEventListener("storage", handler);
+
+    return () => {
+      window.removeEventListener("auth:changed", handler);
+      window.removeEventListener("storage", handler);
+    };
   }, []);
 
-
+  useEffect(() => {
+    if (!canAddActivity) setVisibleFilter("");
+  }, [canAddActivity]);
 
 
   // console.log("user:", user);
@@ -366,7 +555,7 @@ export default function ActivitiesList() {
               />
             </label>
 
-            <Select
+            <CategoryDropdown
               label="Catégorie"
               value={categorie}
               onChange={setCategorie}
@@ -374,7 +563,10 @@ export default function ActivitiesList() {
                 { value: "", label: "Toutes" },
                 ...categories.map((c) => ({ value: c.nom, label: c.nom })),
               ]}
+              getIcon={getCategoryIcon}
             />
+
+
             <Select
               label="Site"
               value={site}
@@ -423,6 +615,20 @@ export default function ActivitiesList() {
               options={[{ value: "", label: "Tous" }, ...optionSets.s.map((x) => ({ value: x, label: x }))]}
             />
 
+            {canAddActivity && (
+              <Select
+                label="Visibilité"
+                value={visibleFilter}
+                onChange={setVisibleFilter}
+                options={[
+                  { value: "", label: "Toutes" },  // SUAPS: visible + masquées
+                  { value: "1", label: "Visibles" },
+                  { value: "0", label: "Masquées" },
+                ]}
+              />
+            )}
+            
+            
             <Select
               label="Par page"
               value={String(perPage)}
@@ -434,6 +640,9 @@ export default function ActivitiesList() {
                 { value: "50", label: "50" },
               ]}
             />
+            
+
+
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -448,6 +657,7 @@ export default function ActivitiesList() {
                 setType("");
                 setStatut("");
                 setTypeActivite("");
+                setVisibleFilter("");
               }}
               className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
             >
@@ -477,7 +687,12 @@ export default function ActivitiesList() {
         {!loading && !err && (
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             {items.map((a) => (
-              <ActivityCard key={a.id} a={a} />
+              <ActivityCard
+                key={a.id}
+                a={a}
+                showQuota={isMoniteur}
+                showVisibility={isSuaps} // only SUAPS sees Visible/Masquée badge
+              />
             ))}
             {items.length === 0 && (
               <div className="md:col-span-2 rounded-3xl border border-slate-200 bg-white/70 p-6 text-sm text-slate-600 shadow-sm backdrop-blur-md">
