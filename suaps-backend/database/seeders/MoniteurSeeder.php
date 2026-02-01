@@ -29,12 +29,17 @@ class MoniteurSeeder extends Seeder
     {
         $people = [
             ['prenom' => 'Brahim', 'nom' => 'Khaider', 'is_suaps' => 1],
+            ['prenom' => 'achraf', 'nom' => 'chakir', 'is_suaps' => 1],
+            ['prenom' => 'badr', 'nom' => 'hirchoua', 'is_suaps' => 0],
             ['prenom' => 'Ahmed',  'nom' => 'Sabiri',  'is_suaps' => 0],
             ['prenom' => 'Salma',  'nom' => 'Oubaha',  'is_suaps' => 0],
         ];
 
         foreach ($people as $p) {
             $email = $this->makeEmail($p['nom'], $p['prenom']);
+
+            // Determine account type based on is_suaps
+            $typeCompte = $p['is_suaps'] ? 'suaps' : 'moniteur';
 
             // 1) Create or get user (no duplicates)
             $user = User::firstOrCreate(
@@ -44,7 +49,7 @@ class MoniteurSeeder extends Seeder
                     'nom'         => $p['nom'],
                     'prenom'      => $p['prenom'],
                     'password'    => 'password123',   // auto-hashed by your casts
-                    'type_compte' => 'moniteur',      // adjust if you use enum/values
+                    'type_compte' => $typeCompte,
                 ]
             );
 
