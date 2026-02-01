@@ -17,6 +17,8 @@ use App\Http\Controllers\SiteController;
 use App\Http\Controllers\MoniteurController;
 
 use App\Http\Controllers\InscriptionController;
+use App\Http\Controllers\Admin\UserAdminController;
+
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/activites/{id}/inscriptions', [InscriptionController::class, 'register']);
@@ -56,3 +58,15 @@ Route::get('/type-evenements/{id}', [TypeEvenementController::class, 'show']);
 
 Route::get('/sites', [SiteController::class, 'index']);
 Route::get('/sites/{id}', [SiteController::class, 'show']);
+
+
+// 🔄 Routes modifiées pour utiliser user_id au lieu de moniteur id
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/users/{userId}/make-suaps', [MoniteurController::class, 'makeSuaps']);
+    Route::post('/users/{userId}/make-moniteur', [MoniteurController::class, 'makeMoniteur']);
+});
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserAdminController::class, 'index']);
+});

@@ -3,9 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!localStorage.getItem("access_token");
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!localStorage.getItem("access_token"));
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
   });
 
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ export default function Navbar() {
   useEffect(() => {
     const onAuthChanged = () => {
       setIsAuthenticated(!!localStorage.getItem("access_token"));
+      const storedUser = localStorage.getItem("user");
+      setUser(storedUser ? JSON.parse(storedUser) : null);
     };
 
     window.addEventListener("auth:changed", onAuthChanged);
@@ -40,6 +43,9 @@ export default function Navbar() {
     navigate("/");
   };
 
+  // Check if user is a SUAPS admin
+  const isSuapsAdmin = (user?.type_compte === 'suaps');
+
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto max-w-6xl px-4">
@@ -63,6 +69,15 @@ export default function Navbar() {
                 >
                   Activités
                 </Link>
+
+                {isSuapsAdmin && (
+                  <Link
+                    to="/admin/users"
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-slate-100"
+                  >
+                    Admin Users
+                  </Link>
+                )}
               </nav>
             )}
           </div>
@@ -128,13 +143,25 @@ export default function Navbar() {
         {open && (
           <div className="md:hidden mt-3 rounded-xl border border-slate-200 bg-white p-4 space-y-2">
             {isAuthenticated && (
-              <Link
-                to="/activities"
-                className="block rounded-lg px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-slate-100"
-                onClick={() => setOpen(false)}
-              >
-                Activités
-              </Link>
+              <>
+                <Link
+                  to="/activities"
+                  className="block rounded-lg px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-slate-100"
+                  onClick={() => setOpen(false)}
+                >
+                  Activités
+                </Link>
+
+                {isSuapsAdmin && (
+                  <Link
+                    to="/admin/users"
+                    className="block rounded-lg px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-slate-100"
+                    onClick={() => setOpen(false)}
+                  >
+                    Admin Users
+                  </Link>
+                )}
+              </>
             )}
 
             {!isAuthenticated ? (

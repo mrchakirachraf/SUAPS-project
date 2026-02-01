@@ -28,12 +28,12 @@ export default function ActivityDetails() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   const canRegister =
-  user &&
-  (user.etudiant != null || user.personnel != null);
+  user.user &&
+  (user.user.etudiant != null || user.user.personnel != null);
   const isQuotaFull =
-    user?.etudiant != null
+    user?.user.etudiant != null
       ? activity?.quota_etudiant <= 0
-      : user?.personnel != null
+      : user?.user.personnel != null
       ? activity?.quota_personnel <= 0
       : true;
 
@@ -223,8 +223,7 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
-              {console.log(user )}
-              {user.id === activity.moniteur_id && (
+              {user.user.id === activity.moniteur_id && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
                   <button

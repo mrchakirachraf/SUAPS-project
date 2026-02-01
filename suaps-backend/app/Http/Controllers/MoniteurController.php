@@ -57,14 +57,27 @@ class MoniteurController extends Controller
     public function me(Request $request)
     {
         $user = $request->user();
-
-        $moniteur = Moniteur::where('user_id', $user->id)->first();
+        $user->load(['moniteur', 'personnel', 'etudiant']);
 
         return response()->json([
-            'is_moniteur' => (bool) $moniteur,
-            'is_suaps' => $moniteur ? (bool) $moniteur->is_suaps : false,
-            'moniteur' => $moniteur,
-        ]);
+            'id' => $user->id,
+            'username' => $user->username,
+            'email' => $user->email,
+            'type_compte' => $user->type_compte, // ✅ MAINTENANT PRÉSENT!
+            'moniteur' => $user->moniteur ? [
+                'id' => $user->moniteur->id,
+                'user_id' => $user->moniteur->user_id,
+                'is_suaps' => (bool) $user->moniteur->is_suaps,
+            ] : null,
+            
+            'personnel' => $user->personnel ? [
+                'id' => $user->personnel->id,
+            ] : null,
+            
+            'etudiant' => $user->etudiant ? [
+                'id' => $user->etudiant->id,
+            ] : null,
+            ]);
     }
 
     public function preInscrits($activiteId, Request $request)
@@ -148,6 +161,111 @@ class MoniteurController extends Controller
         return response()->json(['message' => 'Action effectuée avec succès']);
     }
 
+ /**
+     * 🔼 Transformer un moniteur en SUAPS
+     * POST /api/users/{userId}/make-suaps
+     */
+    public function makeSuaps(Request $request, $userId)
+    {
+        $authUser = $request->user();
+
+        // 🔐 Sécurité : SUAPS uniquement
+        if ($authUser->type_compte !== 'suaps') {
+            return response()->json([
+                'message' => 'Action non autorisée.'
+            ], 403);
+        }
+
+        // 🔍 Récupérer le moniteur via user_id
+        $moniteur = Moniteur::where('user_id', $userId)->firstOrFail();
+
+        return DB::transaction(function () use ($moniteur) {
+
+            $user = $moniteur->user;
+
+            if ($user->type_compte === 'suaps') {
+                return response()->json([
+                    'message' => 'Ce compte est déjà SUAPS.'
+                ], 400);
+            }
+
+            // 🔁 Mise à jour user
+            $user->update([
+                'type_compte' => 'suaps',
+            ]);
+
+            // 🔁 Mise à jour moniteur
+            $moniteur->update([
+                'is_suaps' => true,
+            ]);
+
+            return response()->json([
+                'message' => 'Le compte est désormais SUAPS.',
+                'user' => [
+                    'id' => $user->id,
+                    'type_compte' => $user->type_compte,
+                ],
+                'moniteur' => [
+                    'id' => $moniteur->id,
+                    'user_id' => $moniteur->user_id,
+                    'is_suaps' => $moniteur->is_suaps,
+                ],
+            ]);
+        });
+    }
+
+    /**
+     * 🔽 Transformer un SUAPS en moniteur
+     * POST /api/users/{userId}/make-moniteur
+     */
+    public function makeMoniteur(Request $request, $userId)
+    {
+        $authUser = $request->user();
+
+        // 🔐 Sécurité : SUAPS uniquement
+        if ($authUser->type_compte !== 'suaps') {
+            return response()->json([
+                'message' => 'Action non autorisée.'
+            ], 403);
+        }
+
+        // 🔍 Récupérer le moniteur via user_id
+        $moniteur = Moniteur::where('user_id', $userId)->firstOrFail();
+
+        return DB::transaction(function () use ($moniteur) {
+
+            $user = $moniteur->user;
+
+            if ($user->type_compte !== 'suaps') {
+                return response()->json([
+                    'message' => 'Ce compte n\'est pas un compte SUAPS.'
+                ], 400);
+            }
+
+            // 🔁 Mise à jour user
+            $user->update([
+                'type_compte' => 'moniteur',
+            ]);
+
+            // 🔁 Mise à jour moniteur
+            $moniteur->update([
+                'is_suaps' => false,
+            ]);
+
+            return response()->json([
+                'message' => 'Le compte est redevenu moniteur.',
+                'user' => [
+                    'id' => $user->id,
+                    'type_compte' => $user->type_compte,
+                ],
+                'moniteur' => [
+                    'id' => $moniteur->id,
+                    'user_id' => $moniteur->user_id,
+                    'is_suaps' => $moniteur->is_suaps,
+                ],
+            ]);
+        });
+    }
 
 
 

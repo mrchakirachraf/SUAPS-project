@@ -296,14 +296,11 @@ export default function ActivitiesList() {
         });
 
         const data = await res.json();
-        console.log("moniteurs/me status:", res.status);
-        console.log("moniteurs/me data:", data);
 
         if (!res.ok) return setCanAddActivity(false);
 
         setCanAddActivity(Boolean(data.is_moniteur && data.is_suaps));
       } catch (e) {
-        console.error("Error checking permission:", e);
         setCanAddActivity(false);
       }
     }

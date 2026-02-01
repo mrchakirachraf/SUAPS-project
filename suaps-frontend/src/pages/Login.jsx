@@ -56,7 +56,8 @@ export default function Login() {
 
       // ✅ Stockage du token
       localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user", JSON.stringify(data));
+      
       window.dispatchEvent(new Event("auth:changed"));
 
       console.log("Connexion réussie", data);

@@ -38,6 +38,7 @@ class LoginController extends Controller
             'message' => 'Connexion réussie',
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'type_compte' => $user->type_compte,
             'user' => [
                 'id' => $user->id,
                 'username' => $user->username,
