@@ -20,10 +20,7 @@ use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\Admin\UserAdminController;
 
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/activites/{id}/inscriptions', [InscriptionController::class, 'register']);
-    Route::get('/activites/{id}/inscriptions', [InscriptionController::class, 'listInscrits']);
-});
+
 
 Route::get('/moniteurs', [MoniteurController::class, 'index']);
 Route::middleware('auth:sanctum')->get('/moniteurs/me', [MoniteurController::class, 'me']);
@@ -40,13 +37,31 @@ Route::get('/secretariats', function () {
     return \App\Models\Secretariat::select('id', 'nom', 'prenom', 'email', 'telephone')->get();
 });
 
-Route::get('/activites', [ActiviteController::class, 'index']);
-Route::get('/activites/{id}', [ActiviteController::class, 'show']);
+// ✅ ACTIVITES (safe order)
 Route::get('/activites/filters', [ActiviteFiltersController::class, 'index']);
-Route::middleware('auth:sanctum')->get(
-    '/activites/{id}/preinscrits',
-    [MoniteurController::class, 'preInscrits']
-);
+
+// public listing (controller will return only visible)
+Route::get('/activites', [ActiviteController::class, 'index']);
+
+// authenticated listing (SUAPS can see hidden)
+Route::middleware('auth:sanctum')->get('/activites/manage', [ActiviteController::class, 'index']);
+
+Route::middleware('auth:sanctum')->get('/activites/manage/{id}', [ActiviteController::class, 'show']);
+
+
+// show MUST be last
+Route::get('/activites/{id}', [ActiviteController::class, 'show']);
+
+// auth-only for activity subroutes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/activites/{id}/inscriptions', [InscriptionController::class, 'register']);
+    Route::get('/activites/{id}/inscriptions', [InscriptionController::class, 'listInscrits']);
+
+    Route::get('/activites/{id}/preinscrits', [MoniteurController::class, 'preInscrits']);
+});
+
+
+
 
 Route::post('/auth/register/moniteur', [RegisterMoniteurController::class, 'register']);
 

@@ -13,6 +13,8 @@ class DatabaseSeeder extends Seeder
             SiteSeeder::class,
             TypeEvenementSeeder::class,
             SecretariatSeeder::class,
+            MoniteurSeeder::class,
+            ActiviteSeeder::class,
         ]);
     }
 }

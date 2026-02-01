@@ -82,16 +82,20 @@ class MoniteurController extends Controller
 
     public function preInscrits($activiteId, Request $request)
     {
-        $user = $request->user(); // moniteur connecté
+        $user = $request->user();
+
+        $moniteur = Moniteur::where('user_id', $user->id)->first();
+        if (!$moniteur) {
+            return response()->json(['message' => 'Accès refusé (non moniteur)'], 403);
+        }
 
         $activite = Activite::with(['inscriptions.user'])->findOrFail($activiteId);
 
-        // Vérifie que l'activité appartient bien au moniteur
-        if ($activite->moniteur_id !== $user->id) {
+        // ✅ comparer moniteurs.id avec activites.moniteur_id
+        if ((int)$activite->moniteur_id !== (int)$moniteur->id) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
-        // Pré-inscrits = statut "en_cours"
         $preInscrits = $activite->inscriptions()
             ->where('statut', 'en_cours')
             ->with('user')
@@ -114,6 +118,7 @@ class MoniteurController extends Controller
         ]);
     }
 
+
     /**
      * POST /api/inscriptions/{id}/valider
      * Valider ou refuser un pré-inscrit + noter
@@ -121,33 +126,37 @@ class MoniteurController extends Controller
      */
     public function validerInscription(Request $request, $inscriptionId)
     {
-        $user = $request->user(); // moniteur connecté
+        $user = $request->user();
+
+        $moniteur = Moniteur::where('user_id', $user->id)->first();
+        if (!$moniteur) {
+            return response()->json(['message' => 'Accès refusé (non moniteur)'], 403);
+        }
+
         $validated = $request->validate([
             'action' => 'required|in:valider,refuser',
             'note' => 'nullable|numeric|min:0|max:20',
         ]);
 
-        $inscription = Inscription::findOrFail($inscriptionId);
+        $inscription = Inscription::with('activite')->findOrFail($inscriptionId);
         $activite = $inscription->activite;
 
-        // Vérifie que le moniteur est propriétaire
-        if ($activite->moniteur_id !== $user->id) {
+        if ((int)$activite->moniteur_id !== (int)$moniteur->id) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
-        DB::transaction(function () use ($inscription, $validated, $user) {
+        DB::transaction(function () use ($inscription, $validated, $moniteur) {
             if ($validated['action'] === 'valider') {
                 $inscription->statut = 'validée';
                 $inscription->date_inscription_def = now();
                 $inscription->save();
 
-                // Crée ou met à jour l'évaluation si note fournie
                 if (isset($validated['note'])) {
-                    $evaluation = Evaluation::updateOrCreate(
+                    Evaluation::updateOrCreate(
                         [
                             'activite_id' => $inscription->activite_id,
                             'etudiant_id' => $inscription->user_id,
-                            'moniteur_id' => $inscription->moniteur_id
+                            'moniteur_id' => $moniteur->id, // ✅ moniteurs.id
                         ],
                         ['note' => $validated['note']]
                     );
@@ -266,6 +275,7 @@ class MoniteurController extends Controller
             ]);
         });
     }
+
 
 
 

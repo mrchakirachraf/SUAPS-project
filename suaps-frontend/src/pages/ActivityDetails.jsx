@@ -37,9 +37,51 @@ export default function ActivityDetails() {
       ? activity?.quota_personnel <= 0
       : true;
 
+  const [isSuaps, setIsSuaps] = useState(false);
+  const [roleLoaded, setRoleLoaded] = useState(false);
+
+  useEffect(() => {
+    async function checkSuaps() {
+      try {
+        const token = localStorage.getItem("access_token");
+
+        // 🔹 Not logged in
+        if (!token) {
+          setIsSuaps(false);
+          setRoleLoaded(true);
+          return;
+        }
+
+        const res = await fetch(`${API}/api/moniteurs/me`, {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          setIsSuaps(false);
+        } else {
+          setIsSuaps(Boolean(data.is_moniteur && data.is_suaps));
+        }
+
+        setRoleLoaded(true);
+      } catch {
+        setIsSuaps(false);
+        setRoleLoaded(true);
+      }
+    }
+
+    checkSuaps();
+  }, []);
+
 
 
   useEffect(() => {
+    if (!roleLoaded) return;
+
     const controller = new AbortController();
 
     async function load() {
@@ -48,7 +90,8 @@ export default function ActivityDetails() {
         setErr("");
 
         const token = localStorage.getItem("access_token");
-        const res = await fetch(`${API}/api/activites/${id}`, {
+        const endpoint = isSuaps ? `/api/activites/manage/${id}` : `/api/activites/${id}`;
+        const res = await fetch(`${API}${endpoint}`, {
           signal: controller.signal,
           headers: {
             Accept: "application/json",
@@ -69,7 +112,12 @@ export default function ActivityDetails() {
 
     load();
     return () => controller.abort();
-  }, [id]);
+  }, [id, isSuaps, roleLoaded]);
+
+  const isMoniteur = Boolean(user?.moniteur);
+  const isSuapsMoniteur = Boolean(user?.moniteur?.is_suaps);
+
+
 
   return (
     <main className="relative min-h-screen text-slate-900">
@@ -152,20 +200,23 @@ export default function ActivityDetails() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                  <div className="text-xs font-semibold text-slate-500">Quotas</div>
-                  <div className="mt-1 font-semibold text-slate-900">
-                    Étudiants: {activity.quota_etudiant ?? "—"} • Personnel:{" "}
-                    {activity.quota_personnel ?? "—"}
+                {isMoniteur && (
+                  <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                    <div className="text-xs font-semibold text-slate-500">Quotas</div>
+                    <div className="mt-1 font-semibold text-slate-900">
+                      Étudiants: {activity.quota_etudiant ?? "—"} • Personnel: {activity.quota_personnel ?? "—"}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                  <div className="text-xs font-semibold text-slate-500">Visibilité</div>
-                  <div className="mt-1 font-semibold text-slate-900">
-                    {activity.visible ? "Visible" : "Masquée"}
+                {isSuapsMoniteur && (
+                  <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                    <div className="text-xs font-semibold text-slate-500">Visibilité</div>
+                    <div className="mt-1 font-semibold text-slate-900">
+                      {activity.visible ? "Visible" : "Masquée"}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="mt-6 flex flex-wrap gap-2">
@@ -223,7 +274,8 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
-              {user.user.id === activity.moniteur_id && (
+              {console.log(user )}
+              {user?.moniteur?.id === activity.moniteur_id && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
                   <button
