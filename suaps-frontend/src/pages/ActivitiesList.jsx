@@ -471,9 +471,9 @@ export default function ActivitiesList() {
 
         const data = await res.json();
         if (!res.ok) return setCanAddActivity(false);
-
-        const moniteur = Boolean(data.is_moniteur);
-        const suaps = Boolean(data.is_suaps);
+        
+        const moniteur = Boolean(data.moniteur.is_suaps);
+        const suaps = Boolean(data.moniteur.is_suaps);          
 
         setIsMoniteur(moniteur);
         setIsSuaps(suaps);

@@ -37,6 +37,9 @@ export default function ActivityDetails() {
       ? activity?.quota_personnel <= 0
       : true;
 
+  const isMoniteur = Boolean(user?.user.moniteur);
+  const isSuapsMoniteur = Boolean(user?.user.moniteur?.is_suaps);
+
   const [isSuaps, setIsSuaps] = useState(false);
   const [roleLoaded, setRoleLoaded] = useState(false);
 
@@ -114,8 +117,6 @@ export default function ActivityDetails() {
     return () => controller.abort();
   }, [id, isSuaps, roleLoaded]);
 
-  const isMoniteur = Boolean(user?.moniteur);
-  const isSuapsMoniteur = Boolean(user?.moniteur?.is_suaps);
 
 
 
@@ -274,8 +275,7 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
-              {console.log(user )}
-              {user?.moniteur?.id === activity.moniteur_id && (
+              {user?.user.moniteur?.id === activity.moniteur_id && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
                   <button
