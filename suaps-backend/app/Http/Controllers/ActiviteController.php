@@ -148,7 +148,42 @@ class ActiviteController extends Controller
         return response()->json($activite);
     }
 
+    
+    public function store(Request $request)
+        {
+        $user = $request->user();
+        if (!$user || !$this->isSuapsMoniteur($user)) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
 
+        $validated = $request->validate([
+            'libelle' => ['required', 'string', 'max:255'],
+            'horaire' => ['nullable', 'string', 'max:100'],
+            'periode' => ['required', Rule::in(['S1', 'S2', 'S1/S2'])],
+            'jour' => ['required', Rule::in(['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'])],
+            'lieu' => ['nullable', 'string', 'max:255'],
+            'commentaire' => ['nullable', 'string'],
+            'description_pre_inscription' => ['nullable', 'string'],
+            'quota_etudiant' => ['required', 'integer', 'min:0'],
+            'quota_personnel' => ['required', 'integer', 'min:0'],
+            'date_limite_inscription_s1' => ['nullable', 'date'],
+            'date_limite_note_s1' => ['nullable', 'date'],
+            'date_limite_inscription_s2' => ['nullable', 'date'],
+            'date_limite_note_s2' => ['nullable', 'date'],
+            'statut' => ['required', Rule::in(['ouverte','fermee'])],
+            'visible' => ['required', 'boolean'],
+            'categorie_id' => ['required', 'exists:categories,id'],
+            'site_id' => ['required', 'exists:sites,id'],
+            'type_evenement_id' => ['required', 'exists:type_evenements,id'],
+            'moniteur_id' => ['required', 'exists:moniteurs,id'],
+            'type_activite' => ['required', Rule::in(['évaluée','competitif','non évaluée','évaluée/competitive'])],
+        ]);
+
+        // Crée l'activité
+        $activite = Activite::create($validated);
+
+        return response()->json($activite, 201);
+    }
 
 
 }

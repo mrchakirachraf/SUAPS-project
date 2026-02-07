@@ -46,14 +46,18 @@ Route::middleware('auth:sanctum')->group(function () {
 // ✅ ACTIVITES (safe order)
 Route::get('/activites/filters', [ActiviteFiltersController::class, 'index']);
 
-// public listing (controller will return only visible)
-Route::get('/activites', [ActiviteController::class, 'index']);
 
-// authenticated listing (SUAPS can see hidden)
-Route::middleware('auth:sanctum')->get('/activites/manage', [ActiviteController::class, 'index']);
 
-Route::middleware('auth:sanctum')->get('/activites/manage/{id}', [ActiviteController::class, 'show']);
 
+
+Route::middleware('auth:sanctum')->group(function () {
+    // public listing (controller will return only visible)
+    Route::get('/activites', [ActiviteController::class, 'index']);
+    // authenticated listing (SUAPS can see hidden)
+    Route::get('/activites/manage', [ActiviteController::class, 'index']);
+    Route::get('/activites/manage/{id}', [ActiviteController::class, 'show']);
+    Route::post('/activites', [ActiviteController::class, 'store']);
+});
 
 // show MUST be last
 Route::get('/activites/{id}', [ActiviteController::class, 'show']);
