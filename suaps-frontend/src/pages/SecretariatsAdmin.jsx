@@ -214,7 +214,7 @@ export default function SecretariatsAdmin() {
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th>Email</th>
-                <th>Téléphone</th>
+                <th >Téléphone</th>
                 <th />
               </tr>
             </thead>
@@ -225,23 +225,25 @@ export default function SecretariatsAdmin() {
                   <td>{s.prenom}</td>
                   <td>{s.email}</td>
                   <td>{s.telephone ?? "—"}</td>
-                  <td className="flex gap-2 py-2">
+                  <td className="flex justify-center gap-2 py-2">
                     <button
-                      onClick={() => {
+                        onClick={() => {
                         setEditing(s.id);
                         setForm(s);
-                      }}
-                      className="text-[#205187] font-bold"
+                        }}
+                        className="inline-flex items-center rounded-full border border-[#205187] bg-white/80 px-3 py-1 text-xs font-semibold text-[#205187] hover:bg-[#205187]/10 transition"
                     >
-                      Modifier
+                        Modifier
                     </button>
+
                     <button
-                      onClick={() => remove(s.id)}
-                      className="text-red-600 font-bold"
+                        onClick={() => remove(s.id)}
+                        className="inline-flex items-center rounded-full border border-red-300 bg-red-50 px-3 py-1 text-xs font-semibold text-red-600 hover:bg-red-100 transition"
                     >
-                      Supprimer
+                        Supprimer
                     </button>
-                  </td>
+                   </td>
+
                 </tr>
               ))}
             </tbody>
