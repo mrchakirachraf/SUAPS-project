@@ -75,7 +75,16 @@ export default function Navbar() {
                     to="/admin/users"
                     className="rounded-lg px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-slate-100"
                   >
-                    Admin Users
+                    Gestion des utilisateurs
+                  </Link>
+                )}
+
+                {isSuapsAdmin && (
+                  <Link
+                    to="/admin/secretariat"
+                    className="rounded-lg px-3 py-2 text-sm font-semibold text-[#334155] hover:bg-slate-100"
+                  >
+                    Gestion des Secretariats
                   </Link>
                 )}
               </nav>

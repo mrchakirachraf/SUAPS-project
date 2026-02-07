@@ -144,13 +144,6 @@ function ActivityCard({ a, showQuota = false, showVisibility = false }) {
       </div>
 
       <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-         <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
-          <div className="text-xs font-semibold text-slate-500">Commentaire</div>
-          <div className="mt-1 font-semibold text-slate-900">
-            {a.commentaire ?? "—"}
-          </div>
-        </div>
- 
         <div className="rounded-2xl border border-slate-200 bg-white/70 p-3">
           <div className="text-xs font-semibold text-slate-500">Lieu</div>
           <div className="mt-1 font-semibold text-slate-900">{a.lieu ?? site}</div>

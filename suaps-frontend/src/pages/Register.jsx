@@ -510,7 +510,7 @@ export default function Register() {
                           <option value="">Sélectionnez un secrétariat</option>
                           {secretariats.map((s) => (
                             <option key={s.id} value={s.id}>
-                              {s.prenom} {s.nom} — {s.email}
+                              {s.nom} {s.prenom} — {s.email}
                             </option>
                           ))}
                         </select>

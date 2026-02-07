@@ -33,9 +33,15 @@ Route::post('/auth/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/auth/logout', [LogoutController::class, 'logout']);
 Route::post('/auth/register/personnel', [RegisterPersonnelController::class, 'register']);
 
-Route::get('/secretariats', function () {
-    return \App\Models\Secretariat::select('id', 'nom', 'prenom', 'email', 'telephone')->get();
+use App\Http\Controllers\Admin\SecretariatAdminController;
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/secretariats', [SecretariatAdminController::class, 'index']);
+    Route::post('/secretariats', [SecretariatAdminController::class, 'store']);
+    Route::put('/secretariats/{id}', [SecretariatAdminController::class, 'update']);
+    Route::delete('/secretariats/{id}', [SecretariatAdminController::class, 'destroy']);
 });
+
 
 // ✅ ACTIVITES (safe order)
 Route::get('/activites/filters', [ActiviteFiltersController::class, 'index']);

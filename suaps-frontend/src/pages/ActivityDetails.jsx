@@ -187,6 +187,13 @@ export default function ActivityDetails() {
               </div>
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 sm:col-span-2">
+                  <div className="text-xs font-semibold text-slate-500">Commentaire</div>
+                  <div className="mt-1 font-extrabold text-slate-900">
+                    {activity.commentaire ?? "—"}
+                  </div>
+                </div>
+
                 <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
                   <div className="text-xs font-semibold text-slate-500">Lieu</div>
                   <div className="mt-1 font-extrabold text-slate-900">
@@ -275,7 +282,7 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
-              {user?.user.moniteur?.id === activity.moniteur_id && (
+              {(isSuapsMoniteur || user?.user.moniteur?.id === activity.moniteur_id) && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
                   <button

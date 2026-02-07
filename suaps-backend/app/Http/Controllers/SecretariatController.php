@@ -15,6 +15,7 @@ class SecretariatController extends Controller
 
         return Secretariat::where('email', 'like', '%' . $request->email . '%')
             ->select('id', 'nom', 'prenom', 'email')
+            ->orderBy('nom')
             ->get();
     }
 }

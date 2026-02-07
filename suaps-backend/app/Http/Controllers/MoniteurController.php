@@ -91,8 +91,9 @@ class MoniteurController extends Controller
 
         $activite = Activite::with(['inscriptions.user'])->findOrFail($activiteId);
 
-        // ✅ comparer moniteurs.id avec activites.moniteur_id
-        if ((int)$activite->moniteur_id !== (int)$moniteur->id) {
+        // comparer moniteurs.id avec activites.moniteur_id
+        // SUAPS OU moniteur créateur
+        if (!$moniteur->is_suaps && (int)$activite->moniteur_id !== (int)$moniteur->id) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
