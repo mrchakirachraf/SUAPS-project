@@ -108,6 +108,9 @@ export default function ActivityDetails() {
     return true;
   }, [activity, user]);
 
+  const isOuverte = (activity?.statut ?? "").toLowerCase() === "ouverte";
+
+
   const canSeePreinscrits = useMemo(() => {
     if (!user || !activity) return false;
     // ✅ SUAPS moniteur sees it always
@@ -311,25 +314,29 @@ export default function ActivityDetails() {
                   : "—"}
               </p>
 
-              <div className="mt-6 h-px bg-slate-200" />
+              {(isMoniteur || isSuaps) && (
+                <>
+                <div className="mt-6 h-px bg-slate-200" />
+                  <h3 className="mt-6 text-base font-extrabold text-slate-900">Inscriptions</h3>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Total inscriptions:{" "}
+                    <span className="font-extrabold text-slate-900">
+                      {Array.isArray(activity.inscriptions) ? activity.inscriptions.length : 0}
+                    </span>
+                  </p>
 
-              <h3 className="mt-6 text-base font-extrabold text-slate-900">Inscriptions</h3>
-              <p className="mt-2 text-sm text-slate-600">
-                Total inscriptions:{" "}
-                <span className="font-extrabold text-slate-900">
-                  {Array.isArray(activity.inscriptions) ? activity.inscriptions.length : 0}
-                </span>
-              </p>
+                  <h3 className="mt-6 text-base font-extrabold text-slate-900">Évaluations</h3>
+                  <p className="mt-2 text-sm text-slate-600">
+                    Total évaluations:{" "}
+                    <span className="font-extrabold text-slate-900">
+                      {Array.isArray(activity.evaluations) ? activity.evaluations.length : 0}
+                    </span>
+                  </p>
+                </>
+              )}
 
-              <h3 className="mt-6 text-base font-extrabold text-slate-900">Évaluations</h3>
-              <p className="mt-2 text-sm text-slate-600">
-                Total évaluations:{" "}
-                <span className="font-extrabold text-slate-900">
-                  {Array.isArray(activity.evaluations) ? activity.evaluations.length : 0}
-                </span>
-              </p>
 
-              {canRegister && (
+              {canRegister && isOuverte && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
                   <button
@@ -345,6 +352,13 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
+
+              {canRegister && !isOuverte && (
+                <p className="mt-6 text-sm font-semibold text-slate-600">
+                  Inscriptions fermées pour cette activité.
+                </p>
+              )}
+
 
               {canSeePreinscrits && (
                 <>
