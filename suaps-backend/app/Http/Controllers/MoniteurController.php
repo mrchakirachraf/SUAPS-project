@@ -253,7 +253,7 @@ class MoniteurController extends Controller
             ]);
 
         return response()->json([
-            'est_evaluee' => (bool) $activite->est_evaluee,
+            'est_evaluee' => in_array($activite->type_activite, ['évaluée', 'évaluée/competitive']),
             'inscrits' => $inscrits,
         ]);
     }
