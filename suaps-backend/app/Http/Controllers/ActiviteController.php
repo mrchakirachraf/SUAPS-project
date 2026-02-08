@@ -148,7 +148,7 @@ class ActiviteController extends Controller
         return response()->json($activite);
     }
 
-    
+
     public function store(Request $request)
         {
         $user = $request->user();
@@ -183,6 +183,78 @@ class ActiviteController extends Controller
         $activite = Activite::create($validated);
 
         return response()->json($activite, 201);
+    }
+
+    public function showManage(Request $request, $id)
+    {
+        $user = $request->user();
+        if (!$user || !$this->isSuapsMoniteur($user)) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        $activite = Activite::with([
+            'categorie',
+            'site',
+            'typeEvenement',
+            'moniteur.user',
+            'inscriptions',
+            'evaluations'
+        ])->findOrFail($id);
+
+        return response()->json($activite);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $user = $request->user();
+        if (!$user || !$this->isSuapsMoniteur($user)) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        $activite = Activite::findOrFail($id);
+
+        $validated = $request->validate([
+            // Infos générales
+            'libelle' => ['required', 'string', 'max:255'],
+            'horaire' => ['nullable', 'string', 'max:100'],
+            'lieu' => ['nullable', 'string', 'max:255'],
+            'commentaire' => ['nullable', 'string'],
+            'description_pre_inscription' => ['nullable', 'string'],
+
+            // Organisation temporelle
+            'periode' => ['required', Rule::in(['S1', 'S2', 'S1/S2'])],
+            'jour' => ['nullable', Rule::in(['lundi','mardi','mercredi','jeudi','vendredi','samedi','dimanche'])],
+
+            // Type d’activité
+            'type_activite' => ['required', Rule::in(['évaluée','competitif','non évaluée','évaluée/competitive'])],
+
+            // Quotas
+            'quota_etudiant' => ['nullable', 'integer', 'min:0'],
+            'quota_personnel' => ['nullable', 'integer', 'min:0'],
+
+            // Dates limites
+            'date_limite_inscription_s1' => ['nullable', 'date'],
+            'date_limite_note_s1' => ['nullable', 'date'],
+            'date_limite_inscription_s2' => ['nullable', 'date'],
+            'date_limite_note_s2' => ['nullable', 'date'],
+
+            // Statut & visibilité
+            'statut' => ['required', Rule::in(['ouverte','fermee'])],
+            'visible' => ['required', 'boolean'],
+
+            // Relations
+            'categorie_id' => ['required', 'exists:categories,id'],
+            'site_id' => ['required', 'exists:sites,id'],
+            'type_evenement_id' => ['required', 'exists:type_evenements,id'],
+            'moniteur_id' => ['required', 'exists:moniteurs,id'],
+        ]);
+
+        $activite->update($validated);
+
+        // return fresh with relations (useful for front)
+        $activite->load(['categorie','site','typeEvenement','moniteur.user']);
+
+        return response()->json($activite);
     }
 
 

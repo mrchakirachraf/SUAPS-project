@@ -56,7 +56,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // authenticated listing (SUAPS can see hidden)
     Route::get('/activites/manage', [ActiviteController::class, 'index']);
     Route::get('/activites/manage/{id}', [ActiviteController::class, 'show']);
+    Route::get('/activites/manage/{id}', [ActiviteController::class, 'showManage']);
+
     Route::post('/activites', [ActiviteController::class, 'store']);
+    Route::put('/activites/{id}', [ActiviteController::class, 'update']);
 });
 
 // show MUST be last
