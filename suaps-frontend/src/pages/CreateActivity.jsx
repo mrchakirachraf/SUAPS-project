@@ -280,7 +280,7 @@ export default function CreateActivity() {
               >
                 <option value="">-- Choisir --</option>
                 {categories.map(c => (
-                  <option key={c.id} value={c.id}>{c.libelle}</option>
+                  <option key={c.id} value={c.id}>{c.nom}</option>
                 ))}
               </select>
             </div>
