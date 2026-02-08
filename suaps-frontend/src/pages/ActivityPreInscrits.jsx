@@ -170,7 +170,7 @@ export default function ActivityPreInscrits() {
 
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-extrabold">{activity.libelle} - Pré-inscrits</h1>
+          <h2 className="text-3xl font-extrabold my-6">{activity.libelle}</h2>
           <Link
             to={`/activities/${id}`}
             className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
@@ -180,6 +180,8 @@ export default function ActivityPreInscrits() {
         </div>
 
         {preInscrits.length > 0 && (
+          <>          
+          <h1 className="text-xl font-extrabold my-6">Liste des pré-inscrits</h1>
           <div className="rounded-3xl border bg-white/70 p-6 backdrop-blur mb-10">
             <table className="w-full border-collapse border border-slate-300 text-sm">
               <thead>
@@ -213,6 +215,7 @@ export default function ActivityPreInscrits() {
               </tbody>
             </table>
           </div>
+          </>
         )}
 
         {/* Modal */}
@@ -257,8 +260,9 @@ export default function ActivityPreInscrits() {
           </div>
         )}
 
-        {/* Inscrits */}
-        <h2 className="text-xl font-bold mt-12 mb-4">Inscrits</h2>
+        {inscrits.length > 0 && (
+        <>
+        <h2 className="text-xl font-extrabold my-6">Liste des inscrits</h2>
         <div className="rounded-3xl border bg-white/70 p-6 backdrop-blur">
           <table className="w-full border-collapse border border-slate-300 text-sm">
             <thead>
@@ -292,6 +296,7 @@ export default function ActivityPreInscrits() {
               ))}
             </tbody>
           </table>
+          
 
           {isEvaluated && (
             <button
@@ -315,7 +320,10 @@ export default function ActivityPreInscrits() {
             </button>
           )}
         </div>
+        </>
+      )}
       </div>
+      
     </main>
   );
 }
