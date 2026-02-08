@@ -16,6 +16,8 @@ use App\Http\Controllers\SiteController;
 
 use App\Http\Controllers\MoniteurController;
 
+use App\Http\Controllers\DocumentController;
+
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Admin\SecretariatAdminController;
@@ -93,7 +95,14 @@ Route::get('/sites/{id}', [SiteController::class, 'show']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/users/{userId}/make-suaps', [MoniteurController::class, 'makeSuaps']);
     Route::post('/users/{userId}/make-moniteur', [MoniteurController::class, 'makeMoniteur']);
+    Route::get('/inscriptions/{id}/details',[MoniteurController::class, 'preInscritDetails']);
 });
+
+
+Route::get(
+    '/documents/{path}',
+    [DocumentController::class, 'show']
+)->where('path', '.*');
 
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -171,7 +171,73 @@ class MoniteurController extends Controller
         return response()->json(['message' => 'Action effectuée avec succès']);
     }
 
- /**
+
+    public function preInscritDetails($inscriptionId, Request $request)
+    {
+        $user = $request->user();
+
+        $moniteur = Moniteur::where('user_id', $user->id)->first();
+        if (!$moniteur) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        $inscription = Inscription::with([
+            'user.etudiant',
+            'user.personnel.documents',
+            'activite'
+        ])->findOrFail($inscriptionId);
+
+        // sécurité : même moniteur ou SUAPS
+        if (!$moniteur->is_suaps &&
+            (int)$inscription->activite->moniteur_id !== (int)$moniteur->id) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        $user = $inscription->user;
+
+        $response = [
+            'id' => $inscription->id,
+            'nom' => $user->nom,
+            'prenom' => $user->prenom,
+            'type_compte' => $user->type_compte,
+        ];
+
+        if ($user->type_compte === 'etudiant' && $user->etudiant) {
+            $response['etudiant'] = [
+                'num_carte_etud' => $user->etudiant->num_carte_etud,
+                'img_carte_etud' => $user->etudiant->img_carte_etud,
+            ];
+        }
+
+        if ($user->type_compte === 'personnel' && $user->personnel) {
+            $response['documents'] = $user->personnel->documents->map(fn ($doc) => [
+                'type' => $doc->type,
+                'chemin' => $doc->chemin,
+            ]);
+        }
+
+        return response()->json($response);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /**
      * 🔼 Transformer un moniteur en SUAPS
      * POST /api/users/{userId}/make-suaps
      */
