@@ -1,7 +1,75 @@
-import { useEffect, useState } from "react";
-import { useNavigate , Link, useParams } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { GiSportMedal } from "react-icons/gi";
+import {
+  GiSoccerBall,
+  GiBasketballBall,
+  GiVolleyballBall,
+  GiRunningShoe,
+  GiShuttlecock,
+  GiWaterSplash,
+  GiWeightLiftingUp,
+  GiHand,
+} from "react-icons/gi";
+
+const CATEGORY_ICONS = {
+  Football: GiSoccerBall,
+  Basketball: GiBasketballBall,
+  Handball: GiHand,
+  Volleyball: GiVolleyballBall,
+  Natation: GiWaterSplash,
+  Musculation: GiWeightLiftingUp,
+  "Athlétisme": GiRunningShoe,
+  Badminton: GiShuttlecock,
+};
+
+const getCategoryIcon = (name) => CATEGORY_ICONS[name] ?? GiSportMedal;
+
+// ✅ category name -> public/categories/<file>
+const CATEGORY_IMAGES = {
+  Football: "football.png",
+  Basketball: "basketball.png",
+  Handball: "handball.jpg",
+  Volleyball: "volleyball.jpg",
+  Natation: "natation.png",
+  Musculation: "musculation.png",
+  "Athlétisme": "athletisme.png", // keep accent IF your file name has it
+  Badminton: "badminton.png",
+};
+
+// returns "/categories/xxx.png" or null
+function getCategoryImageSrc(categoryName) {
+  const file = CATEGORY_IMAGES[categoryName];
+  return file ? `/categories/${file}` : null;
+}
+
+
 
 const API = import.meta.env.VITE_API_URL ?? "http://127.0.0.1:8000";
+
+/** ✅ Reads exactly what your login stores:
+ * localStorage:
+ * - access_token: string
+ * - user: JSON string with { message, access_token, token_type, type_compte, user: {...} }
+ */
+function readAuth() {
+  const token = localStorage.getItem("access_token");
+
+  let payload = null;
+  try {
+    payload = JSON.parse(localStorage.getItem("user"));
+  } catch {
+    payload = null;
+  }
+
+  // IMPORTANT: backend returns "user" key containing the actual user object
+  const u = payload?.user ?? null;
+
+  const isSuaps = Boolean(u?.moniteur?.is_suaps); // ✅ already provided by login
+  const isMoniteur = Boolean(u?.moniteur);
+
+  return { token, user: u, isSuaps, isMoniteur };
+}
 
 function Badge({ children }) {
   return (
@@ -20,71 +88,48 @@ function formatDate(dateStr) {
 
 export default function ActivityDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  // ✅ load auth once (single source of truth)
+  const [{ token, user, isSuaps, isMoniteur }] = useState(() => readAuth());
 
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
-  const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
 
-  const canRegister =
-  user.user &&
-  (user.user.etudiant != null || user.user.personnel != null);
-  const isQuotaFull =
-    user?.user.etudiant != null
-      ? activity?.quota_etudiant <= 0
-      : user?.user.personnel != null
-      ? activity?.quota_personnel <= 0
-      : true;
+  const canRegister = Boolean(user?.etudiant || user?.personnel);
 
-  const isMoniteur = Boolean(user?.user.moniteur);
-  const isSuapsMoniteur = Boolean(user?.user.moniteur?.is_suaps);
+  const isQuotaFull = useMemo(() => {
+    if (!activity || !user) return true;
 
-  const [isSuaps, setIsSuaps] = useState(false);
-  const [roleLoaded, setRoleLoaded] = useState(false);
+    if (user.etudiant) return (activity.quota_etudiant ?? 0) <= 0;
+    if (user.personnel) return (activity.quota_personnel ?? 0) <= 0;
 
-  useEffect(() => {
-    async function checkSuaps() {
-      try {
-        const token = localStorage.getItem("access_token");
+    return true;
+  }, [activity, user]);
 
-        // 🔹 Not logged in
-        if (!token) {
-          setIsSuaps(false);
-          setRoleLoaded(true);
-          return;
-        }
+  const canSeePreinscrits = useMemo(() => {
+    if (!user || !activity) return false;
+    // ✅ SUAPS moniteur sees it always
+    if (isSuaps) return true;
+    // ✅ activity owner moniteur can see
+    return user?.moniteur?.id === activity.moniteur_id;
+  }, [user, activity, isSuaps]);
 
-        const res = await fetch(`${API}/api/moniteurs/me`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  const typeLabel =
+    activity?.typeEvenement?.libelle ??
+    activity?.type_evenement?.libelle ??
+    "—";
 
-        const data = await res.json();
+  const categorie = activity?.categorie?.nom ?? "—";
+  const CategoryIcon = getCategoryIcon(categorie);
+  const categoryImg = getCategoryImageSrc(categorie);
 
-        if (!res.ok) {
-          setIsSuaps(false);
-        } else {
-          setIsSuaps(Boolean(data.is_moniteur && data.is_suaps));
-        }
 
-        setRoleLoaded(true);
-      } catch {
-        setIsSuaps(false);
-        setRoleLoaded(true);
-      }
-    }
-
-    checkSuaps();
-  }, []);
-
+  const isVisible = activity?.visible === 1 || activity?.visible === true;
 
 
   useEffect(() => {
-    if (!roleLoaded) return;
-
     const controller = new AbortController();
 
     async function load() {
@@ -92,14 +137,20 @@ export default function ActivityDetails() {
         setLoading(true);
         setErr("");
 
-        const token = localStorage.getItem("access_token");
-        const endpoint = isSuaps ? `/api/activites/manage/${id}` : `/api/activites/${id}`;
+        const headers = {
+          Accept: "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        };
+
+        // ✅ only SUAPS + token uses manage endpoint
+        const endpoint =
+          token && isSuaps
+            ? `/api/activites/manage/${id}`
+            : `/api/activites/${id}`;
+
         const res = await fetch(`${API}${endpoint}`, {
           signal: controller.signal,
-          headers: {
-            Accept: "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
+          headers,
         });
 
         const data = await res.json();
@@ -113,12 +164,10 @@ export default function ActivityDetails() {
       }
     }
 
+
     load();
     return () => controller.abort();
-  }, [id, isSuaps, roleLoaded]);
-
-
-
+  }, [id, token, isSuaps]);
 
   return (
     <main className="relative min-h-screen text-slate-900">
@@ -151,7 +200,6 @@ export default function ActivityDetails() {
           </Link>
         </div>
 
-        {/* States */}
         {loading && (
           <div className="mt-8 rounded-3xl border border-slate-200 bg-white/70 p-6 text-sm text-slate-600 shadow-sm backdrop-blur-md">
             Chargement...
@@ -170,9 +218,7 @@ export default function ActivityDetails() {
             <div className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white/75 p-6 shadow-sm backdrop-blur-md">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <h2 className="text-2xl font-extrabold text-slate-900">
-                    {activity.libelle}
-                  </h2>
+                  <h2 className="text-2xl font-extrabold text-slate-900">{activity.libelle}</h2>
                   <p className="mt-2 text-sm text-slate-600">
                     {activity.jour ? `${activity.jour}` : "—"}{" "}
                     {activity.horaire ? `• ${activity.horaire}` : ""}{" "}
@@ -181,10 +227,42 @@ export default function ActivityDetails() {
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
-                  <Badge>{activity.categorie?.nom ?? "—"}</Badge>
-                  <Badge>{activity.typeEvenement?.libelle ?? "—"}</Badge>
+                  {/* icon circle */}
+                  <div
+                    className="flex items-center justify-center h-10 w-10 rounded-full
+                              border border-slate-200 bg-white/80 text-[#205187]"
+                    title={categorie}
+                  >
+                    <CategoryIcon className="text-xl" />
+                  </div>
+
+                  {/* visibility pill only for SUAPS */}
+                  {isSuaps && (
+                    <span
+                      className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ${
+                        isVisible
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-slate-100 text-slate-600 border border-slate-200"
+                      }`}
+                    >
+                      {isVisible ? "Visible" : "Masquée"}
+                    </span>
+                  )}
                 </div>
+
               </div>
+
+              {categoryImg && (
+                <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-white/70">
+                  <img
+                    src={categoryImg}
+                    alt={categorie}
+                    className="h-96 w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+
 
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 sm:col-span-2">
@@ -203,9 +281,7 @@ export default function ActivityDetails() {
 
                 <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
                   <div className="text-xs font-semibold text-slate-500">Statut</div>
-                  <div className="mt-1 font-extrabold text-slate-900">
-                    {activity.statut ?? "—"}
-                  </div>
+                  <div className="mt-1 font-extrabold text-slate-900">{activity.statut ?? "—"}</div>
                 </div>
 
                 {isMoniteur && (
@@ -213,15 +289,6 @@ export default function ActivityDetails() {
                     <div className="text-xs font-semibold text-slate-500">Quotas</div>
                     <div className="mt-1 font-semibold text-slate-900">
                       Étudiants: {activity.quota_etudiant ?? "—"} • Personnel: {activity.quota_personnel ?? "—"}
-                    </div>
-                  </div>
-                )}
-
-                {isSuapsMoniteur && (
-                  <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
-                    <div className="text-xs font-semibold text-slate-500">Visibilité</div>
-                    <div className="mt-1 font-semibold text-slate-900">
-                      {activity.visible ? "Visible" : "Masquée"}
                     </div>
                   </div>
                 )}
@@ -265,24 +332,21 @@ export default function ActivityDetails() {
               {canRegister && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
-
                   <button
                     disabled={isQuotaFull}
                     onClick={() => navigate(`/activities/${id}/register`)}
                     className={`mt-6 w-full rounded-xl px-4 py-3 text-sm font-extrabold transition
-                      ${
-                        isQuotaFull
-                          ? "cursor-not-allowed bg-slate-200 text-slate-500"
-                          : "bg-[#334155]  text-white hover:bg-[#1e293b]"
+                      ${isQuotaFull
+                        ? "cursor-not-allowed bg-slate-200 text-slate-500"
+                        : "bg-[#334155] text-white hover:bg-[#1e293b]"
                       }`}
                   >
-                    {isQuotaFull
-                      ? "Quota atteint"
-                      : "S’inscrire à cette activité"}
+                    {isQuotaFull ? "Quota atteint" : "S’inscrire à cette activité"}
                   </button>
                 </>
               )}
-              {(isSuapsMoniteur || user?.user.moniteur?.id === activity.moniteur_id) && (
+
+              {canSeePreinscrits && (
                 <>
                   <div className="mt-6 h-px bg-slate-200" />
                   <button
@@ -293,8 +357,17 @@ export default function ActivityDetails() {
                   </button>
                 </>
               )}
-
-
+              {isSuaps && (
+                <>
+                  <div className="mt-4 h-px bg-slate-200" />
+                  <button
+                    onClick={() => navigate(`/activities/${id}/edit`)}
+                    className="mt-4 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-extrabold text-slate-700 hover:bg-slate-200"
+                  >
+                    Modifier l’activité
+                  </button>
+                </>
+              )}
             </aside>
           </div>
         )}

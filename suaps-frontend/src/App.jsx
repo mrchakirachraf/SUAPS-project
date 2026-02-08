@@ -10,6 +10,7 @@ import ActivityRegister from "./pages/ActivityRegister";
 import ActivityPreInscrits from "./pages/ActivityPreInscrits";
 import UsersAdmin from "./pages/UsersAdmin";
 import SecretariatsAdmin from "./pages/SecretariatsAdmin";
+import ActivityEdit from "./pages/ActivityEdit";
 
 function AppContent() {
   const location = useLocation();
@@ -34,6 +35,7 @@ function AppContent() {
 
         <Route path="/admin/users" element={<UsersAdmin />} />
         <Route path="/admin/secretariat" element={<SecretariatsAdmin />} />
+        <Route path="/activities/:id/edit" element={<ActivityEdit />} />
 
 
 
