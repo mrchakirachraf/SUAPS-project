@@ -241,7 +241,7 @@ class MoniteurController extends Controller
         }
 
         $inscrits = $activite->inscriptions()
-            ->where('statut', 'validee')
+            ->where('statut', 'valide')
             ->with(['user', 'evaluation'])
             ->get()
             ->map(fn ($ins) => [

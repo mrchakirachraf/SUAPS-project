@@ -22,6 +22,9 @@ use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Admin\SecretariatAdminController;
 
+use App\Http\Controllers\EvaluationController;
+
+
 
 
 

@@ -1,3 +1,11 @@
+<?php
+
+namespace App\Http\Controllers;
+use App\Models\Evaluation;
+
+use Illuminate\Http\Request;
+
+
 class EvaluationController extends Controller
 {
     public function store(Request $request)
@@ -47,3 +55,4 @@ class EvaluationController extends Controller
         return response()->json(['message' => 'Toutes les notes enregistrées']);
     }
 }
+

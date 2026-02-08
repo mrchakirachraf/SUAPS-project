@@ -40,4 +40,13 @@ class Inscription extends Model
     public function user() {
         return $this->belongsTo(User::class);
     }
+
+
+    public function evaluation()
+    {
+        return $this->hasOne(Evaluation::class, 'etudiant_id', 'user_id')
+                    ->where('activite_id', $this->activite_id ?? 0);
+    }
+
+
 }
