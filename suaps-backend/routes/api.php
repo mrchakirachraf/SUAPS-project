@@ -18,6 +18,7 @@ use App\Http\Controllers\MoniteurController;
 
 use App\Http\Controllers\InscriptionController;
 use App\Http\Controllers\Admin\UserAdminController;
+use App\Http\Controllers\Admin\SecretariatAdminController;
 
 
 
@@ -33,7 +34,6 @@ Route::post('/auth/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/auth/logout', [LogoutController::class, 'logout']);
 Route::post('/auth/register/personnel', [RegisterPersonnelController::class, 'register']);
 
-use App\Http\Controllers\Admin\SecretariatAdminController;
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/secretariats', [SecretariatAdminController::class, 'index']);

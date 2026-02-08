@@ -25,12 +25,37 @@ export default function CreateActivity() {
     date_limite_note_s2: "",
     statut: "ouverte",
     visible: true,
+    categorie_id: "",
+    site_id: "",
+    type_evenement_id: "",
+    moniteur_id: "",
   };
 
   const [form, setForm] = useState(emptyForm);
   const [isInvalid, setIsInvalid] = useState(true);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+
+  const [categories, setCategories] = useState([]);
+  const [sites, setSites] = useState([]);
+  const [typesEvenements, setTypesEvenements] = useState([]);
+  const [moniteurs, setMoniteurs] = useState([]);
+
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API}/api/categories`).then(r => r.json()),
+      fetch(`${API}/api/sites`).then(r => r.json()),
+      fetch(`${API}/api/type-evenements`).then(r => r.json()),
+      fetch(`${API}/api/moniteurs`).then(r => r.json()),
+    ]).then(([cats, sites, types, mons]) => {
+      setCategories(cats);
+      setSites(sites);
+      setTypesEvenements(types);
+      setMoniteurs(mons);
+    });
+  }, []);
+
 
   // 🔐 Protection SUAPS
   useEffect(() => {
@@ -47,7 +72,11 @@ export default function CreateActivity() {
       form.jour &&
       form.type_activite &&
       form.quota_etudiant &&
-      form.quota_personnel;
+      form.quota_personnel &&
+      form.categorie_id &&
+      form.site_id &&
+      form.type_evenement_id &&
+      form.moniteur_id;
     setIsInvalid(!requiredFilled);
   }, [form]);
 
@@ -60,6 +89,7 @@ export default function CreateActivity() {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify(form),
       });
@@ -182,6 +212,25 @@ export default function CreateActivity() {
               />
             </div>
 
+            {/* Site */}
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-700">Site *</label>
+              <select
+                required
+                value={form.site_id}
+                onChange={(e) =>
+                  setForm({ ...form, site_id: e.target.value })
+                }
+                className="rounded-xl border px-3 py-2"
+              >
+                <option value="">-- Choisir --</option>
+                {sites.map(s => (
+                  <option key={s.id} value={s.id}>{s.nom}</option>
+                ))}
+              </select>
+            </div>
+
+
             {/* Periode */}
             <div className="flex flex-col">
               <label className="font-semibold text-slate-700">Période *</label>
@@ -191,6 +240,7 @@ export default function CreateActivity() {
                 className="rounded-xl border px-3 py-2"
                 required
               >
+                <option value="">-- Choisir --</option>
                 <option value="S1">S1</option>
                 <option value="S2">S2</option>
                 <option value="S1/S2">S1/S2</option>
@@ -206,6 +256,7 @@ export default function CreateActivity() {
                 className="rounded-xl border px-3 py-2"
                 required
               >
+                <option value="">-- Choisir --</option>
                 <option value="lundi">Lundi</option>
                 <option value="mardi">Mardi</option>
                 <option value="mercredi">Mercredi</option>
@@ -213,6 +264,42 @@ export default function CreateActivity() {
                 <option value="vendredi">Vendredi</option>
                 <option value="samedi">Samedi</option>
                 <option value="dimanche">Dimanche</option>
+              </select>
+            </div>
+
+            {/* categorie */}
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-700">Catégorie *</label>
+              <select
+                required
+                value={form.categorie_id}
+                onChange={(e) =>
+                  setForm({ ...form, categorie_id: e.target.value })
+                }
+                className="rounded-xl border px-3 py-2"
+              >
+                <option value="">-- Choisir --</option>
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.libelle}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* type evenement */}
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-700">Type d'événement *</label>
+              <select
+                required
+                value={form.type_evenement_id}
+                onChange={(e) =>
+                  setForm({ ...form, type_evenement_id: e.target.value })
+                }
+                className="rounded-xl border px-3 py-2"
+              >
+                <option value="">-- Choisir --</option>
+                {typesEvenements.map(t => (
+                  <option key={t.id} value={t.id}>{t.libelle}</option>
+                ))}
               </select>
             </div>
 
@@ -227,10 +314,30 @@ export default function CreateActivity() {
                 className="rounded-xl border px-3 py-2"
                 required
               >
+                <option value="">-- Choisir --</option>
                 <option value="non évaluée">Non évaluée</option>
                 <option value="évaluée">Évaluée</option>
                 <option value="competitif">Compétitif</option>
                 <option value="évaluée/competitive">Évaluée/Compétitive</option>
+              </select>
+            </div>
+            {/* Moniteur */}
+            <div className="flex flex-col">
+              <label className="font-semibold text-slate-700">Moniteur *</label>
+              <select
+                required
+                value={form.moniteur_id}
+                onChange={(e) =>
+                  setForm({ ...form, moniteur_id: e.target.value })
+                }
+                className="rounded-xl border px-3 py-2"
+              >
+                <option value="">-- Choisir --</option>
+                {moniteurs.map(m => (
+                  <option key={m.id} value={m.id}>
+                    {m.user?.nom} {m.user?.prenom}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -286,6 +393,9 @@ export default function CreateActivity() {
                 rows={3}
               />
             </div>
+
+            
+
 
             {/* Dates limites */}
             {showS1 && (
@@ -350,6 +460,7 @@ export default function CreateActivity() {
                 onChange={(e) => setForm({ ...form, statut: e.target.value })}
                 className="rounded-xl border px-3 py-2"
               >
+                <option value="">-- Choisir --</option>
                 <option value="ouverte">Ouverte</option>
                 <option value="fermee">Fermée</option>
               </select>
@@ -363,6 +474,7 @@ export default function CreateActivity() {
                 onChange={(e) => setForm({ ...form, visible: e.target.value === "true" })}
                 className="rounded-xl border px-3 py-2"
               >
+                <option value="">-- Choisir --</option>
                 <option value={true}>Visible</option>
                 <option value={false}>Masquée</option>
               </select>
