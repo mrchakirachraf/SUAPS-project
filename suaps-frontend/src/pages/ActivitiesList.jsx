@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 
 import { Link } from "react-router-dom";
 
@@ -235,6 +235,21 @@ export default function ActivitiesList() {
 
   const [isMoniteur, setIsMoniteur] = useState(false);
   const [isSuaps, setIsSuaps] = useState(false);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [page]);
+
+  useEffect(() => {
+    scrollToTop();
+  }, [q, categorie, site, jour, periode, type, typeActivite, statut, perPage, visibleFilter]);
+
+
+  const topRef = useRef(null);
+
+  const scrollToTop = () => {
+    topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   function CategoryDropdown({ label, value, onChange, options, getIcon }) {
     const [open, setOpen] = useState(false);
@@ -514,6 +529,7 @@ export default function ActivitiesList() {
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-10 md:py-14">
+        <div ref={topRef} />
         {/* Header */}
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -679,6 +695,7 @@ export default function ActivitiesList() {
         {/* List */}
         {!loading && !err && (
           <div className="mt-8 grid gap-5 md:grid-cols-2">
+            
             {items.map((a) => (
               <ActivityCard
                 key={a.id}
@@ -718,6 +735,7 @@ export default function ActivitiesList() {
       >
         Suivant →
       </button>
+
     </div>
 </div>
 
