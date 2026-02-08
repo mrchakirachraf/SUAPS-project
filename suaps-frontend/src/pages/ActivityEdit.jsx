@@ -29,16 +29,26 @@ export default function ActivityEdit() {
   // form state
   const [form, setForm] = useState({
     libelle: "",
-    jour: "",
+    jour: "lundi",
     horaire: "",
-    periode: "",
+    periode: "S1",
     lieu: "",
     commentaire: "",
+    description_pre_inscription: "",
+
+    type_activite: "évaluée",
+
     quota_etudiant: 0,
     quota_personnel: 0,
+
+    date_limite_inscription_s1: "",
+    date_limite_note_s1: "",
+    date_limite_inscription_s2: "",
+    date_limite_note_s2: "",
+
     statut: "ouverte",
     visible: true,
-    type_activite: "évaluée",
+
     categorie_id: "",
     site_id: "",
     type_evenement_id: "",
@@ -96,22 +106,34 @@ export default function ActivityEdit() {
 
         // ✅ Prefill form from backend object
         setForm({
-          libelle: actData.libelle ?? "",
-          jour: actData.jour ?? "",
-          horaire: actData.horaire ?? "",
-          periode: actData.periode ?? "",
-          lieu: actData.lieu ?? "",
-          commentaire: actData.commentaire ?? "",
-          quota_etudiant: actData.quota_etudiant ?? 0,
-          quota_personnel: actData.quota_personnel ?? 0,
-          statut: actData.statut ?? "ouverte",
-          visible: Boolean(actData.visible),
-          type_activite: actData.type_activite ?? "évaluée",
-          categorie_id: actData.categorie_id ?? actData.categorie?.id ?? "",
-          site_id: actData.site_id ?? actData.site?.id ?? "",
-          type_evenement_id: actData.type_evenement_id ?? actData.typeEvenement?.id ?? "",
-          moniteur_id: actData.moniteur_id ?? "",
+            libelle: actData.libelle ?? "",
+            jour: actData.jour ?? "lundi",
+            horaire: actData.horaire ?? "",
+            periode: actData.periode ?? "S1",
+            lieu: actData.lieu ?? "",
+            commentaire: actData.commentaire ?? "",
+            description_pre_inscription: actData.description_pre_inscription ?? "",
+
+            quota_etudiant: actData.quota_etudiant ?? 0,
+            quota_personnel: actData.quota_personnel ?? 0,
+
+            // ✅ for <input type="date"> -> must be "YYYY-MM-DD" or ""
+            date_limite_inscription_s1: actData.date_limite_inscription_s1 ?? "",
+            date_limite_note_s1: actData.date_limite_note_s1 ?? "",
+            date_limite_inscription_s2: actData.date_limite_inscription_s2 ?? "",
+            date_limite_note_s2: actData.date_limite_note_s2 ?? "",
+
+            statut: actData.statut ?? "ouverte",
+            visible: Boolean(actData.visible),
+
+            type_activite: actData.type_activite ?? "évaluée",
+
+            categorie_id: actData.categorie_id ?? actData.categorie?.id ?? "",
+            site_id: actData.site_id ?? actData.site?.id ?? "",
+            type_evenement_id: actData.type_evenement_id ?? actData.typeEvenement?.id ?? "",
+            moniteur_id: actData.moniteur_id ?? "",
         });
+
 
       } catch (e) {
         if (e.name !== "AbortError") setErr(e.message || "Erreur réseau.");
@@ -187,13 +209,18 @@ export default function ActivityEdit() {
 
           <label className="block">
             <span className="text-xs font-semibold text-slate-600">Jour</span>
-            <input
-              value={form.jour}
-              onChange={(e) => setField("jour", e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-              required
-            />
-          </label>
+            <select
+                value={form.jour}
+                onChange={(e) => setField("jour", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                required
+            >
+                {["lundi","mardi","mercredi","jeudi","vendredi","samedi","dimanche"].map((j) => (
+                <option key={j} value={j}>{j}</option>
+                ))}
+            </select>
+            </label>
+
 
           <label className="block">
             <span className="text-xs font-semibold text-slate-600">Horaire</span>
@@ -206,13 +233,18 @@ export default function ActivityEdit() {
 
           <label className="block">
             <span className="text-xs font-semibold text-slate-600">Période</span>
-            <input
-              value={form.periode}
-              onChange={(e) => setField("periode", e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-              required
-            />
+            <select
+                value={form.periode}
+                onChange={(e) => setField("periode", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                required
+            >
+                {["S1","S2","S1/S2"].map((p) => (
+                <option key={p} value={p}>{p}</option>
+                ))}
+            </select>
           </label>
+
 
           <label className="block">
             <span className="text-xs font-semibold text-slate-600">Lieu</span>
@@ -232,6 +264,45 @@ export default function ActivityEdit() {
               rows={3}
             />
           </label>
+
+          <label className="block sm:col-span-2">
+            <span className="text-xs font-semibold text-slate-600">Description pré-inscription</span>
+            <textarea
+                value={form.description_pre_inscription}
+                onChange={(e) => setField("description_pre_inscription", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                rows={4}
+            />
+          </label>
+
+
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Type d’activité</span>
+            <select
+                value={form.type_activite}
+                onChange={(e) => setField("type_activite", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                required
+            >
+                {["évaluée","competitif","non évaluée","évaluée/competitive"].map((t) => (
+                <option key={t} value={t}>{t}</option>
+                ))}
+            </select>
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Statut</span>
+            <select
+                value={form.statut}
+                onChange={(e) => setField("statut", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+                required
+            >
+                <option value="ouverte">ouverte</option>
+                <option value="fermee">fermee</option>
+            </select>
+          </label>
+
 
           <label className="block">
             <span className="text-xs font-semibold text-slate-600">Quota étudiant</span>
@@ -326,6 +397,47 @@ export default function ActivityEdit() {
             />
             <span className="text-sm font-semibold text-slate-700">Visible</span>
           </label>
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Date limite inscription S1</span>
+            <input
+                type="date"
+                value={form.date_limite_inscription_s1}
+                onChange={(e) => setField("date_limite_inscription_s1", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Date limite note S1</span>
+            <input
+                    type="date"
+                value={form.date_limite_note_s1}
+                onChange={(e) => setField("date_limite_note_s1", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Date limite inscription S2</span>
+            <input
+                type="date"
+                value={form.date_limite_inscription_s2}
+                onChange={(e) => setField("date_limite_inscription_s2", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs font-semibold text-slate-600">Date limite note S2</span>
+            <input
+                type="date"
+                value={form.date_limite_note_s2}
+                onChange={(e) => setField("date_limite_note_s2", e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
+            />
+          </label>
+
+
         </div>
 
         <button
