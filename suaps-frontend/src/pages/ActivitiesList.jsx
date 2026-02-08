@@ -374,7 +374,6 @@ export default function ActivitiesList() {
         const endpoint = canAddActivity ? "/api/activites/manage" : "/api/activites";
         const actUrl = `${API}${endpoint}?${params.toString()}`;
 
-        console.log("FETCH:", actUrl, "token?", !!token, "canAddActivity:", canAddActivity, "visibleFilter:", visibleFilter);
 
 
         const [actRes, catRes, siteRes, typeRes] = await Promise.all([
