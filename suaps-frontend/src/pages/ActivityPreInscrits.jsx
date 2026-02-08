@@ -171,8 +171,9 @@ export default function ActivityPreInscrits() {
           </table>
 
         </>
-      )}
-      {showModal && ( 
+      )} 
+      
+      {showModal && (  
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="w-full max-w-lg rounded bg-white p-6">
             {detailsLoading ? (
