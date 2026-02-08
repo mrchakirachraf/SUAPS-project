@@ -99,10 +99,16 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 
-Route::get(
-    '/documents/{path}',
-    [DocumentController::class, 'show']
-)->where('path', '.*');
+Route::get('/documents/{path}',[DocumentController::class, 'show'])->where('path', '.*');
+
+Route::middleware('auth:sanctum')->post('/inscriptions/{id}/valider',[MoniteurController::class, 'validerInscription']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/activites/{id}/inscrits', [MoniteurController::class, 'inscrits']);
+    Route::post('/evaluations', [EvaluationController::class, 'store']);
+    Route::post('/evaluations/bulk', [EvaluationController::class, 'storeBulk']);
+});
+
 
 
 Route::middleware('auth:sanctum')->group(function () {

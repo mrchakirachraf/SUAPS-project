@@ -142,13 +142,15 @@ class MoniteurController extends Controller
         $inscription = Inscription::with('activite')->findOrFail($inscriptionId);
         $activite = $inscription->activite;
 
-        if ((int)$activite->moniteur_id !== (int)$moniteur->id) {
+        if (!$moniteur->is_suaps &&
+            (int)$activite->moniteur_id !== (int)$moniteur->id) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
+    try {
         DB::transaction(function () use ($inscription, $validated, $moniteur) {
             if ($validated['action'] === 'valider') {
-                $inscription->statut = 'validée';
+                $inscription->statut = 'valide';
                 $inscription->date_inscription_def = now();
                 $inscription->save();
 
@@ -163,10 +165,18 @@ class MoniteurController extends Controller
                     );
                 }
             } else {
-                $inscription->statut = 'refusée';
+                $inscription->statut = 'refuse';
                 $inscription->save();
             }
         });
+
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+            ], 500);
+        }
 
         return response()->json(['message' => 'Action effectuée avec succès']);
     }
@@ -217,6 +227,35 @@ class MoniteurController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    public function inscrits($activiteId, Request $request)
+    {
+        $user = $request->user();
+        $moniteur = Moniteur::where('user_id', $user->id)->firstOrFail();
+
+        $activite = Activite::with('inscriptions.user')->findOrFail($activiteId);
+
+        if (!$moniteur->is_suaps && $activite->moniteur_id !== $moniteur->id) {
+            return response()->json(['message' => 'Accès refusé'], 403);
+        }
+
+        $inscrits = $activite->inscriptions()
+            ->where('statut', 'validee')
+            ->with(['user', 'evaluation'])
+            ->get()
+            ->map(fn ($ins) => [
+                'id' => $ins->id,
+                'etudiant_id' => $ins->user_id,
+                'nom' => $ins->user->nom,
+                'prenom' => $ins->user->prenom,
+                'note' => $ins->evaluation?->note,
+            ]);
+
+        return response()->json([
+            'est_evaluee' => (bool) $activite->est_evaluee,
+            'inscrits' => $inscrits,
+        ]);
     }
 
 
