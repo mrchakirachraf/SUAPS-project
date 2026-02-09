@@ -42,10 +42,16 @@ class Inscription extends Model
     }
 
 
+    // public function evaluation()
+    // {
+    //     return $this->hasOne(Evaluation::class, 'etudiant_id', 'user_id')
+    //                 ->where('activite_id', $this->activite_id ?? 0);
+    // }
+
     public function evaluation()
     {
         return $this->hasOne(Evaluation::class, 'etudiant_id', 'user_id')
-                    ->where('activite_id', $this->activite_id ?? 0);
+            ->whereColumn('evaluations.activite_id', 'inscriptions.activite_id');
     }
 
 

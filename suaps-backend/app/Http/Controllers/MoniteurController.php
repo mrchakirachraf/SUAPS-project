@@ -240,17 +240,23 @@ class MoniteurController extends Controller
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
-        $inscrits = $activite->inscriptions()
-            ->where('statut', 'valide')
-            ->with(['user', 'evaluation'])
-            ->get()
-            ->map(fn ($ins) => [
-                'id' => $ins->id,
-                'etudiant_id' => $ins->user_id,
-                'nom' => $ins->user->nom,
-                'prenom' => $ins->user->prenom,
-                'note' => $ins->evaluation?->note,
-            ]);
+        $inscrits = DB::table('inscriptions')
+            ->leftJoin('evaluations', function($join) use ($activiteId) {
+                $join->on('evaluations.etudiant_id', '=', 'inscriptions.user_id')
+                    ->where('evaluations.activite_id', $activiteId);
+            })
+            ->join('users', 'users.id', '=', 'inscriptions.user_id')
+            ->where('inscriptions.activite_id', $activiteId)
+            ->where('inscriptions.statut', 'valide')
+            ->select(
+                'inscriptions.id',
+                'users.id as etudiant_id',
+                'users.nom',
+                'users.prenom',
+                'evaluations.note'
+            )
+            ->get();
+
 
         return response()->json([
             'est_evaluee' => in_array($activite->type_activite, ['évaluée', 'évaluée/competitive']),

@@ -109,6 +109,32 @@ export default function ActivityPreInscrits() {
     if (selected) await handleAction(selected.id, action);
   }
 
+
+  async function saveSingleNote(etudiant_id) {
+    try {
+      const res = await fetch(`${API}/api/evaluations`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          activite_id: id,
+          etudiant_id,
+          note: notes[etudiant_id] === "" ? null : notes[etudiant_id],
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Erreur");
+
+      alert("Note enregistrée");
+    } catch (e) {
+      alert(e.message);
+    }
+  }
+
+
   if (loading)
     return (
       <main className="relative min-h-screen text-slate-900">
@@ -182,39 +208,41 @@ export default function ActivityPreInscrits() {
         {preInscrits.length > 0 && (
           <>          
           <h1 className="text-xl font-extrabold my-6">Liste des pré-inscrits</h1>
-          <div className="rounded-3xl border bg-white/70 p-6 backdrop-blur mb-10">
-            <table className="w-full border-collapse border border-slate-300 text-sm">
-              <thead>
-                <tr className="bg-slate-100">
-                  <th className="border border-slate-300 px-2 py-1">Nom</th>
-                  <th className="border border-slate-300 px-2 py-1">Prénom</th>
-                  <th className="border border-slate-300 px-2 py-1">Téléphone</th>
-                  <th className="border border-slate-300 px-2 py-1">Date pré-inscription</th>
-                  <th className="border border-slate-300 px-2 py-1">Actions</th>
+          <div className="mt-6 rounded-3xl border bg-white/70 p-6 backdrop-blur">
+          <table className="w-full text-sm">
+            <thead className="text-slate-500">
+              <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                <th>Téléphone</th>
+                <th>Date</th>
+                <th />
+              </tr>
+            </thead>
+
+            <tbody className="divide-y">
+              {preInscrits.map(ins => (
+                <tr key={ins.id} className="hover:bg-slate-50/60 transition">
+                  <td className="py-3">{ins.nom}</td>
+                  <td>{ins.prenom}</td>
+                  <td>{ins.num_tel_etud || "—"}</td>
+                  <td>
+                    {new Date(ins.date_pre_inscription).toLocaleDateString("fr-FR")}
+                  </td>
+                  <td className="text-right">
+                    <button
+                      onClick={() => openDetails(ins.id)}
+                      className="inline-flex items-center rounded-full border border-[#205187] bg-white/80 px-3 py-1 text-xs font-semibold text-[#205187] hover:bg-[#205187]/10 transition"
+                    >
+                      Voir détail
+                    </button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {preInscrits.map((ins) => (
-                  <tr key={ins.id}>
-                    <td className="border px-2 py-1">{ins.nom}</td>
-                    <td className="border px-2 py-1">{ins.prenom}</td>
-                    <td className="border px-2 py-1">{ins.num_tel_etud || "—"}</td>
-                    <td className="border px-2 py-1">
-                      {new Date(ins.date_pre_inscription).toLocaleDateString("fr-FR")}
-                    </td>
-                    <td className="border px-2 py-1">
-                      <button
-                        className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-200"
-                        onClick={() => openDetails(ins.id)}
-                      >
-                        Voir détail
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
           </>
         )}
 
@@ -263,44 +291,68 @@ export default function ActivityPreInscrits() {
         {inscrits.length > 0 && (
         <>
         <h2 className="text-xl font-extrabold my-6">Liste des inscrits</h2>
-        <div className="rounded-3xl border bg-white/70 p-6 backdrop-blur">
-          <table className="w-full border-collapse border border-slate-300 text-sm">
-            <thead>
-              <tr className="bg-slate-100">
-                <th className="border px-2 py-1">Nom</th>
-                <th className="border px-2 py-1">Prénom</th>
-                {isEvaluated && <th className="border px-2 py-1">Note</th>}
+        <div className="mt-6 rounded-3xl border bg-white/70 p-6 backdrop-blur">
+          <table className="w-full text-sm">
+            <thead className="text-slate-500">
+              <tr>
+                <th>Nom</th>
+                <th>Prénom</th>
+                {isEvaluated && <th>Note</th>}
               </tr>
             </thead>
-            <tbody>
-              {inscrits.map(i => (
-                <tr key={i.etudiant_id}>
-                  <td className="border px-2 py-1">{i.nom}</td>
-                  <td className="border px-2 py-1">{i.prenom}</td>
-                  {isEvaluated && (
-                    <td className="border px-2 py-1">
-                      <input
-                        type="number"
-                        min="0"
-                        max="20"
-                        step="0.25"
-                        value={notes[i.etudiant_id]}
-                        onChange={e =>
-                          setNotes({ ...notes, [i.etudiant_id]: e.target.value })
-                        }
-                        className="w-20 border rounded px-1"
-                      />
-                    </td>
-                  )}
-                </tr>
-              ))}
+
+            <tbody className="divide-y">
+              {inscrits.map(i => {
+                const hasNote = notes[i.etudiant_id] !== "" && notes[i.etudiant_id] !== null;
+
+                return (
+                  <tr key={i.etudiant_id} className="hover:bg-slate-50/60 transition">
+                    <td className="py-3">{i.nom}</td>
+                    <td>{i.prenom}</td>
+
+                    {isEvaluated && (
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            max="20"
+                            step="0.25"
+                            value={notes[i.etudiant_id]}
+                            onChange={e =>
+                              setNotes({ ...notes, [i.etudiant_id]: e.target.value })
+                            }
+                            className={`w-20 rounded-xl border px-2 py-1 text-sm
+                              ${hasNote
+                                ? "border-green-400 bg-green-50"
+                                : "border-slate-300 bg-white"
+                              }`}
+                          />
+
+                          <button
+                            onClick={() => saveSingleNote(i.etudiant_id)}
+                            className="inline-flex items-center rounded-full border border-slate-300 bg-white/80 px-3 py-1 text-xs font-semibold text-slate-700 hover:bg-slate-100 transition"
+                          >
+                            Enregistrer
+                          </button>
+
+                          {hasNote && (
+                            <span className="text-xs font-semibold text-green-600">
+                              ✔
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
-          
 
           {isEvaluated && (
             <button
-              className="mt-6 rounded bg-green-600 px-6 py-2 text-white"
+              className="mt-6 rounded-xl bg-[#334155] px-6 py-2 font-extrabold text-white hover:bg-[#1e293b] transition"
               onClick={async () => {
                 await fetch(`${API}/api/evaluations/bulk`, {
                   method: "POST",
@@ -310,7 +362,10 @@ export default function ActivityPreInscrits() {
                   },
                   body: JSON.stringify({
                     activite_id: id,
-                    notes: Object.entries(notes).map(([etudiant_id, note]) => ({ etudiant_id, note })),
+                    notes: Object.entries(notes).map(([etudiant_id, note]) => ({
+                      etudiant_id,
+                      note,
+                    })),
                   }),
                 });
                 alert("Notes enregistrées");
