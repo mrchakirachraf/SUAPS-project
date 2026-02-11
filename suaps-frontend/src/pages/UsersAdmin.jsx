@@ -28,13 +28,35 @@ export default function UsersAdmin() {
     secretariat_id: "",
   });
 
+  async function loadCarteImage(userId) {
+    try {
+      const res = await fetch(`${API}/api/users/${userId}/carte-etudiant`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) {
+        setImgPreview("");
+        return;
+      }
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      setImgPreview(url);
+    } catch {
+      setImgPreview("");
+    }
+  }
+
+
   const openDetails = async (u) => {
     setOpen(true);
     setSelectedUser(u);
     setDetailsError("");
     setDetailsLoading(true);
     setImgFile(null);
-    setImgPreview(`${API}/api/users/${u.id}/carte-etudiant`);
+    setImgPreview("");
+    loadCarteImage(u.id);
+
 
     try {
       const res = await fetch(`${API}/api/users/${u.id}`, {
@@ -66,11 +88,16 @@ export default function UsersAdmin() {
   };
 
   const closeDetails = () => {
+    if (imgPreview?.startsWith("blob:")) URL.revokeObjectURL(imgPreview);
+    setImgPreview("");
+    setImgFile(null);
+
     setOpen(false);
     setSelectedUser(null);
     setDetailsError("");
     setDetailsLoading(false);
   };
+
 
   const [secretariats, setSecretariats] = useState([]);
 
