@@ -165,7 +165,7 @@ export default function CreateActivity() {
             </h1>
           </div>
           <Link
-            to="/activities/manage"
+            to="/activities"
             className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
           >
             ← Retour à la liste

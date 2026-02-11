@@ -18,6 +18,7 @@ class ActiviteSeeder extends Seeder
         $types      = TypeEvenement::all();
         $moniteurs  = Moniteur::all();
 
+
         if ($categories->isEmpty() || $sites->isEmpty() || $types->isEmpty() || $moniteurs->isEmpty()) {
             $this->command?->warn("ActiviteSeeder skipped: missing base data (categories/sites/types/moniteurs).");
             return;
@@ -59,6 +60,33 @@ class ActiviteSeeder extends Seeder
             // Make libelle unique-ish to avoid duplicates when re-running
             $libelle = $cat->nom.' - '.$suffixes[array_rand($suffixes)].' ('.$site->nom.') #'.($created + 1);
 
+
+            // Dates par défaut
+            $dateInsS1 = null;
+            $dateNoteS1 = null;
+            $dateInsS2 = null;
+            $dateNoteS2 = null;
+
+            switch ($periode) {
+                case 'S1':
+                    $dateInsS1  = '2026-02-01';
+                    $dateNoteS1 = '2026-02-15';
+                    break;
+
+                case 'S2':
+                    $dateInsS2  = '2026-03-01';
+                    $dateNoteS2 = '2026-03-15';
+                    break;
+
+                case 'S1/S2':
+                    $dateInsS1  = '2026-02-01';
+                    $dateNoteS1 = '2026-02-15';
+                    $dateInsS2  = '2026-03-01';
+                    $dateNoteS2 = '2026-03-15';
+                    break;
+            }
+
+
             // Use firstOrCreate so we don't create duplicates if you run again
             $act = Activite::firstOrCreate(
                 ['libelle' => $libelle],
@@ -74,10 +102,11 @@ class ActiviteSeeder extends Seeder
                     'description_pre_inscription' => 'Pré-inscription en ligne puis validation du moniteur.',
                     'quota_etudiant' => rand(10, 40),
                     'quota_personnel' => rand(2, 10),
-                    'date_limite_inscription_s1' => '2026-02-01',
-                    'date_limite_note_s1' => '2026-02-15',
-                    'date_limite_inscription_s2' => '2026-03-01',
-                    'date_limite_note_s2' => '2026-03-15',
+                    // ✅ Dates conditionnelles selon la période
+                    'date_limite_inscription_s1' => $dateInsS1,
+                    'date_limite_note_s1'        => $dateNoteS1,
+                    'date_limite_inscription_s2' => $dateInsS2,
+                    'date_limite_note_s2'        => $dateNoteS2,
                     'statut' => $statut,
                     'visible' => $visible,
                     'categorie_id' => $cat->id,

@@ -42,7 +42,7 @@ class SecretariatSeeder extends Seeder
                     'nom'       => $s['nom'],
                     'prenom'    => $s['prenom'],
                     'email'     => $s['email'],
-                    'telephone' => '+33 0 0000 0000', // ✅ FIX HERE
+                    'telephone' => '+33 6 06 06 06 06', // ✅ FIX HERE
                 ]
             );
         }
