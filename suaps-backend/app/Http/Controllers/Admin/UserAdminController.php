@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\Moniteur;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Storage;
 
 class UserAdminController extends Controller
 {
@@ -155,7 +155,7 @@ class UserAdminController extends Controller
 
         $path = $user->etudiant->img_carte_etud;
 
-        return \Illuminate\Support\Facades\Storage::disk('private')->response($path);
+        return Storage::response($path);
     }
 
 

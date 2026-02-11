@@ -97,6 +97,11 @@ export default function ActivityDetails() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+  }, []);
+
+
   const canRegister = Boolean(user?.etudiant || user?.personnel);
 
   const isQuotaFull = useMemo(() => {
@@ -110,6 +115,7 @@ export default function ActivityDetails() {
 
   const isOuverte = (activity?.statut ?? "").toLowerCase() === "ouverte";
 
+  
 
   const canSeePreinscrits = useMemo(() => {
     if (!user || !activity) return false;
@@ -119,10 +125,7 @@ export default function ActivityDetails() {
     return user?.moniteur?.id === activity.moniteur_id;
   }, [user, activity, isSuaps]);
 
-  const typeLabel =
-    activity?.typeEvenement?.libelle ??
-    activity?.type_evenement?.libelle ??
-    "—";
+  
 
   const categorie = activity?.categorie?.nom ?? "—";
   const CategoryIcon = getCategoryIcon(categorie);

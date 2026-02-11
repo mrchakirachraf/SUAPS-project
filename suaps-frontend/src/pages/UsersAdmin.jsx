@@ -109,7 +109,9 @@ export default function UsersAdmin() {
         });
         const data = await res.json();
         if (res.ok) setSecretariats(Array.isArray(data) ? data : (data.secretariats ?? []));
-      } catch {}
+      } catch (e) {
+    console.error(e);
+  }
     })();
   }, []);
 
