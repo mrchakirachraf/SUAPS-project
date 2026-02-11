@@ -505,7 +505,7 @@ export default function Register() {
                           className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"
                           value={selectedSecretariatId}
                           onChange={(e) => setSelectedSecretariatId(e.target.value)}
-                          required
+                          
                         >
                           <option value="">Sélectionnez un secrétariat</option>
                           {secretariats.map((s) => (

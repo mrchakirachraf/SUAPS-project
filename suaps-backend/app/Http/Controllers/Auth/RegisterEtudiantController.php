@@ -27,7 +27,7 @@ class RegisterEtudiantController extends Controller
             'img_carte_etud' => 'required|image|mimes:jpg,jpeg,png|max:4048',
 
             // Secretariat (sélection)
-            'secretariat_id' => 'required|exists:secretariats,id',
+            'secretariat_id' => 'nullable|exists:secretariats,id',
         ]);
 
         return DB::transaction(function () use ($validated, $request) {
