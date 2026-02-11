@@ -527,41 +527,58 @@ export default function UsersAdmin() {
 
                 {secretariats.map((s) => (
                   <option key={s.id} value={s.id}>
-                    {`${s.nom} ${s.prenom} — ${s.email} — ${s.telephone}`}
+                    {`${s.nom} ${s.prenom} • ${s.email} • ${s.telephone}`}
                   </option>
                 ))}
               </select>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="mb-1 block text-xs font-semibold text-slate-600">
-                    Image carte étudiant
-                  </label>
+              <div className="mt-2">
+                <label className="mb-2 block text-xs font-semibold text-slate-600">
+                  Image carte étudiant
+                </label>
+
+                {/* Preview centered */}
+                <div className="flex flex-col items-center gap-3">
+
+                  {/* Image container — auto size from image */}
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-2 inline-flex items-center justify-center">
+                    {imgPreview ? (
+                      <img
+                        src={imgPreview}
+                        alt="Carte étudiant"
+                        className="max-h-[280px] max-w-[420px] object-contain rounded-xl"
+                      />
+                    ) : (
+                      <span className="px-16 py-10 text-xs text-slate-500">Aperçu</span>
+                    )}
+                  </div>
+
+                  {/* Upload button */}
                   <input
+                    id="img_carte_etud"
                     type="file"
                     accept="image/png,image/jpg,image/jpeg"
+                    className="hidden"
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       setImgFile(f || null);
-                      if (f) setImgPreview(URL.createObjectURL(f));
+                      if (imgPreview?.startsWith("blob:")) URL.revokeObjectURL(imgPreview);
+                      setImgPreview(f ? URL.createObjectURL(f) : "");
                     }}
-                    className="block w-full text-sm"
                   />
-                  <p className="mt-1 text-xs text-slate-500">JPG/PNG (≤ 4MB)</p>
+
+                  <label
+                    htmlFor="img_carte_etud"
+                    className="inline-flex cursor-pointer items-center justify-center rounded-xl bg-[#205187] px-4 py-2 text-sm font-extrabold text-white hover:opacity-95"
+                  >
+                    Changer l’image
+                  </label>
+
+                  <p className="text-xs text-slate-500">JPG/PNG (≤ 4MB)</p>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-2 min-h-[260px] flex items-center justify-center overflow-hidden">
-                  {imgPreview ? (
-                    <img
-                      src={imgPreview}
-                      alt="Carte étudiant"
-                      className="w-full h-full object-contain rounded-xl"
-                    />
-                  ) : (
-                    <span className="text-xs text-slate-500">Aperçu</span>
-                  )}
-                </div>
               </div>
+
 
 
 
