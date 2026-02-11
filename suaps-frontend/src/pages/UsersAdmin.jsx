@@ -12,12 +12,143 @@ export default function UsersAdmin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const [open, setOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  const [detailsLoading, setDetailsLoading] = useState(false);
+  const [detailsError, setDetailsError] = useState("");
+
+  const [form, setForm] = useState({
+    username: "",
+    nom: "",
+    prenom: "",
+    email: "",
+    formation: "",
+    num_carte_etud: "",
+    secretariat_id: "",
+  });
+
+  const openDetails = async (u) => {
+    setOpen(true);
+    setSelectedUser(u);
+    setDetailsError("");
+    setDetailsLoading(true);
+    setImgFile(null);
+    setImgPreview(`${API}/api/users/${u.id}/carte-etudiant`);
+
+    try {
+      const res = await fetch(`${API}/api/users/${u.id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Erreur");
+
+      const user = data.user;
+      const etu = data.etudiant; // peut être null si pas etudiant
+
+      setForm({
+        username: user.username ?? "",
+        nom: user.nom ?? "",
+        prenom: user.prenom ?? "",
+        email: user.email ?? "",
+        formation: etu?.formation ?? "",
+        num_carte_etud: etu?.num_carte_etud ?? "",
+        secretariat_id: etu?.secretariat_id ? String(etu.secretariat_id) : "",
+      });
+    } catch (e) {
+      setDetailsError(e.message);
+    } finally {
+      setDetailsLoading(false);
+    }
+  };
+
+  const closeDetails = () => {
+    setOpen(false);
+    setSelectedUser(null);
+    setDetailsError("");
+    setDetailsLoading(false);
+  };
+
+  const [secretariats, setSecretariats] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch(`${API}/api/secretariats`, {
+          headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+        });
+        const data = await res.json();
+        if (res.ok) setSecretariats(Array.isArray(data) ? data : (data.secretariats ?? []));
+      } catch {}
+    })();
+  }, []);
+
+  const [imgFile, setImgFile] = useState(null);
+  const [imgPreview, setImgPreview] = useState("");
+
+
+
+  const onChange = (key, value) => setForm((p) => ({ ...p, [key]: value }));
+
+  const saveDetails = async () => {
+    if (!selectedUser) return;
+
+    try {
+      const fd = new FormData();
+      fd.append("username", form.username);
+      fd.append("nom", form.nom);
+      fd.append("prenom", form.prenom);
+      fd.append("email", form.email);
+
+      // etudiant
+      fd.append("formation", form.formation || "");
+      fd.append("num_carte_etud", form.num_carte_etud || "");
+      fd.append("secretariat_id", form.secretariat_id || "");
+
+      // image
+      if (imgFile) fd.append("img_carte_etud", imgFile);
+
+      // IMPORTANT pour Laravel PUT + multipart
+      fd.append("_method", "PUT");
+
+      const res = await fetch(`${API}/api/users/${selectedUser.id}`, {
+        method: "POST", // ✅ POST + _method=PUT
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+          // ❌ surtout pas Content-Type ici (le navigateur le met)
+        },
+        body: fd,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Erreur");
+
+      setUsers((prev) =>
+        prev.map((x) =>
+          x.id === selectedUser.id
+            ? { ...x, username: form.username, nom: form.nom, prenom: form.prenom, email: form.email }
+            : x
+        )
+      );
+
+      closeDetails();
+    } catch (e) {
+      alert(e.message);
+    }
+  };
+
+
   // 🔐 Protection frontend
   useEffect(() => {
-  if (!user || !user.type_compte === "suaps") {
-        navigate("/activities");
+    if (!user || user.type_compte !== "suaps") {
+      navigate("/activities");
     }
-    }, [user, navigate]);
+  }, [user, navigate]);
+
 
   useEffect(() => {
     async function load() {
@@ -233,21 +364,33 @@ export default function UsersAdmin() {
                     </td>
 
                     <td className="px-3 py-2">
-                      {(u.type_compte === "moniteur" || u.type_compte === "suaps") ? (
-                        <select
-                          defaultValue={u.type_compte}
-                          className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                          onChange={(e) =>
-                            handleChangeType(u, e.target.value)
-                          }
-                        >
-                          <option value="moniteur">Moniteur</option>
-                          <option value="suaps">SUAPS</option>
-                        </select>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {/* ✅ bouton details (affiché surtout pour etudiant) */}
+                        {u.type_compte === "etudiant" ? (
+                          <button
+                            onClick={() => openDetails(u)}
+                            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                          >
+                            Voir détails
+                          </button>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+
+                        {/* ton select existant */}
+                        {(u.type_compte === "moniteur" || u.type_compte === "suaps") ? (
+                          <select
+                            defaultValue={u.type_compte}
+                            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            onChange={(e) => handleChangeType(u, e.target.value)}
+                          >
+                            <option value="moniteur">Moniteur</option>
+                            <option value="suaps">SUAPS</option>
+                          </select>
+                        ) : null}
+                      </div>
                     </td>
+
                   </tr>
                 ))}
               </tbody>
@@ -256,6 +399,165 @@ export default function UsersAdmin() {
         </div>
       )}
     </div>
+    {/* ✅ Modal details */}
+    {open && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center"
+        onClick={closeDetails}
+      >
+        {/* backdrop */}
+        <div className="absolute inset-0 bg-slate-900/60" />
+
+        {/* card */}
+        <div
+          className="relative w-[96vw] max-w-5xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-900">
+                Détails étudiant
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                Modifier les informations puis enregistrer.
+              </p>
+            </div>
+
+            <button
+              onClick={closeDetails}
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
+            >
+              ✕
+            </button>
+          </div>
+
+          {detailsLoading && (
+            <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+              Chargement...
+            </div>
+          )}
+
+          {detailsError && !detailsLoading && (
+            <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+              {detailsError}
+            </div>
+          )}
+
+          {!detailsLoading && !detailsError && (
+            <div className="mt-5 grid grid-cols-1 gap-3">
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Username"
+                  value={form.username}
+                  onChange={(e) => onChange("username", e.target.value)}
+                />
+                <input
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Email"
+                  value={form.email}
+                  onChange={(e) => onChange("email", e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Nom"
+                  value={form.nom}
+                  onChange={(e) => onChange("nom", e.target.value)}
+                />
+                <input
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Prénom"
+                  value={form.prenom}
+                  onChange={(e) => onChange("prenom", e.target.value)}
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Formation"
+                  value={form.formation}
+                  onChange={(e) => onChange("formation", e.target.value)}
+                />
+                <input
+                  className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                  placeholder="Num carte étudiant"
+                  value={form.num_carte_etud}
+                  onChange={(e) => onChange("num_carte_etud", e.target.value)}
+                />
+              </div>
+
+              <select
+                className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                value={form.secretariat_id}
+                onChange={(e) => onChange("secretariat_id", e.target.value)}
+              >
+                <option value="">Sélectionnez un secrétariat</option>
+
+                {secretariats.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {`${s.nom} ${s.prenom} — ${s.email} — ${s.telephone}`}
+                  </option>
+                ))}
+              </select>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-600">
+                    Image carte étudiant
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpg,image/jpeg"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      setImgFile(f || null);
+                      if (f) setImgPreview(URL.createObjectURL(f));
+                    }}
+                    className="block w-full text-sm"
+                  />
+                  <p className="mt-1 text-xs text-slate-500">JPG/PNG (≤ 4MB)</p>
+                </div>
+
+                <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-2">
+                  {imgPreview ? (
+                    <img
+                      src={imgPreview}
+                      alt="Carte étudiant"
+                      className="max-h-24 rounded-xl object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs text-slate-500">Aperçu</span>
+                  )}
+                </div>
+              </div>
+
+
+
+              <div className="mt-2 flex items-center justify-end gap-2">
+                <button
+                  onClick={closeDetails}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  onClick={saveDetails}
+                  className="rounded-xl bg-[#205187] px-4 py-2 text-sm font-extrabold text-white hover:opacity-95"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+
   </main>
 );
 

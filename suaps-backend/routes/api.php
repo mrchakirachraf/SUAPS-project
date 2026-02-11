@@ -96,6 +96,11 @@ Route::get('/sites/{id}', [SiteController::class, 'show']);
 
 // 🔄 Routes modifiées pour utiliser user_id au lieu de moniteur id
 Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserAdminController::class, 'index']);
+    Route::get('/users/{id}', [UserAdminController::class, 'show'])->whereNumber('id');
+    Route::put('/users/{id}', [UserAdminController::class, 'update'])->whereNumber('id');
+    Route::get('/users/{id}/carte-etudiant', [UserAdminController::class, 'carteEtudiant'])->whereNumber('id');
+
     Route::post('/users/{userId}/make-suaps', [MoniteurController::class, 'makeSuaps']);
     Route::post('/users/{userId}/make-moniteur', [MoniteurController::class, 'makeMoniteur']);
     Route::get('/inscriptions/{id}/details',[MoniteurController::class, 'preInscritDetails']);
@@ -114,6 +119,3 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/users', [UserAdminController::class, 'index']);
-});
