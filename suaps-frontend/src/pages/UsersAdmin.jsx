@@ -402,9 +402,7 @@ export default function UsersAdmin() {
                           >
                             Voir détails
                           </button>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
+                        ) : (null) }
 
                         {/* ton select existant */}
                         {(u.type_compte === "moniteur" || u.type_compte === "suaps") ? (
@@ -416,7 +414,7 @@ export default function UsersAdmin() {
                             <option value="moniteur">Moniteur</option>
                             <option value="suaps">SUAPS</option>
                           </select>
-                        ) : null}
+                        ) : (null)}
                       </div>
                     </td>
 
@@ -439,9 +437,10 @@ export default function UsersAdmin() {
 
         {/* card */}
         <div
-          className="relative w-[96vw] max-w-5xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl"
+          className="relative w-[92vw] max-w-3xl max-h-[92vh] overflow-y-auto rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
+
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900">
@@ -551,12 +550,12 @@ export default function UsersAdmin() {
                   <p className="mt-1 text-xs text-slate-500">JPG/PNG (≤ 4MB)</p>
                 </div>
 
-                <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 p-2">
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-2 min-h-[260px] flex items-center justify-center overflow-hidden">
                   {imgPreview ? (
                     <img
                       src={imgPreview}
                       alt="Carte étudiant"
-                      className="max-h-24 rounded-xl object-contain"
+                      className="w-full h-full object-contain rounded-xl"
                     />
                   ) : (
                     <span className="text-xs text-slate-500">Aperçu</span>
