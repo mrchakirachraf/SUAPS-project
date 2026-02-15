@@ -246,47 +246,118 @@ export default function ActivityPreInscrits() {
           </>
         )}
 
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="w-full max-w-lg rounded bg-white p-6">
-              {detailsLoading ? (
-                <div>Chargement...</div>
-              ) : selected && (
-                <>
-                  <h2 className="mb-4 text-xl font-bold">{selected.nom} {selected.prenom}</h2>
+      {/* ✨ Modern Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          
+          {/* Overlay */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowModal(false)}
+          />
 
-                  {selected.type_compte === "etudiant" && (
-                    <div className="space-y-2">
-                      <p><strong>N° carte :</strong> {selected.etudiant.num_carte_etud}</p>
+          {/* Modal Card */}
+          <div className="relative w-full max-w-2xl animate-[fadeIn_.25s_ease-out] rounded-3xl border border-slate-200 bg-white/80 p-8 shadow-2xl backdrop-blur-xl">
+            
+            {detailsLoading ? (
+              <div className="flex items-center gap-3 text-sm font-semibold text-slate-600">
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#205187]" />
+                Chargement des détails…
+              </div>
+            ) : selected && (
+              <>
+                {/* Header */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[#205187]">
+                      Détails de la pré-inscription
+                    </p>
+                    <h2 className="mt-1 text-2xl font-extrabold text-slate-900">
+                      {selected.nom} {selected.prenom}
+                    </h2>
+                  </div>
+
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="my-6 h-px bg-slate-200" />
+
+                {/* Student */}
+                {selected.type_compte === "etudiant" && (
+                  <div className="space-y-6">
+                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                      <p className="text-xs font-semibold text-slate-500">
+                        Numéro de carte étudiant
+                      </p>
+                      <p className="mt-1 font-bold text-slate-900">
+                        {selected.etudiant.num_carte_etud}
+                      </p>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-200 bg-white/70 p-4">
+                      <p className="mb-3 text-xs font-semibold text-slate-500">
+                        Carte étudiante
+                      </p>
                       <img
                         src={`${API}/api/documents/${selected.etudiant.img_carte_etud}`}
                         alt="Carte étudiant"
-                        className="max-h-64 rounded border"
+                        className="max-h-72 w-full rounded-xl border border-slate-200 object-contain shadow-sm"
                       />
                     </div>
-                  )}
-
-                  {selected.type_compte === "personnel" && (
-                    <div className="space-y-2">
-                      {selected.documents.map((doc, i) => (
-                        <a key={i} href={`${API}/api/documents/${doc.chemin}`} target="_blank" className="block text-blue-600 underline">
-                          {doc.type}
-                        </a>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="mt-6 flex justify-end gap-2">
-                    <button className="rounded bg-gray-300 px-4 py-1" onClick={() => setShowModal(false)}>Fermer</button>
-                    <button className="rounded bg-green-600 px-4 py-1 text-white" onClick={() => confirmAction("valider")}>Valider</button>
-                    <button className="rounded bg-red-600 px-4 py-1 text-white" onClick={() => confirmAction("refuser")}>Refuser</button>
                   </div>
-                </>
-              )}
-            </div>
+                )}
+
+                {/* Personnel */}
+                {selected.type_compte === "personnel" && (
+                  <div className="space-y-4">
+                    {selected.documents.map((doc, i) => (
+                      <a
+                        key={i}
+                        href={`${API}/api/documents/${doc.chemin}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="block rounded-2xl border border-slate-200 bg-white/70 px-4 py-3 text-sm font-semibold text-[#205187] transition hover:bg-[#205187]/5"
+                      >
+                        📄 {doc.type}
+                      </a>
+                    ))}
+                  </div>
+                )}
+
+                {/* Footer Buttons */}
+                <div className="mt-8 flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowModal(false)}
+                    className="rounded-xl border border-slate-300 bg-white px-5 py-2 text-sm font-bold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Fermer
+                  </button>
+
+                  <button
+                    onClick={() => confirmAction("refuser")}
+                    className="rounded-xl bg-red-600 px-5 py-2 text-sm font-bold text-white transition hover:bg-red-700 active:scale-95"
+                  >
+                    Refuser
+                  </button>
+
+                  <button
+                    onClick={() => confirmAction("valider")}
+                    className="rounded-xl bg-[#205187] px-5 py-2 text-sm font-bold text-white transition hover:opacity-95 active:scale-95"
+                  >
+                    Valider
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-        )}
+        </div>
+      )}
+
 
         {inscrits.length > 0 && (
         <>
