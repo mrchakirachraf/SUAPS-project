@@ -132,21 +132,61 @@ export default function ActivityRegister() {
     }
   }
 
-  if (loading) {
+    if (loading)
     return (
-      <div className="mx-auto max-w-4xl px-4 py-12 text-slate-600">
-        Chargement...
-      </div>
-    );
-  }
+      <main className="relative min-h-screen text-slate-900">
+        {/* Background */}
+        <div className="fixed inset-0 -z-20 bg-white" />
+        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#205187]/10 via-white/75 to-[#334155]/10" />
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 bg-white/55 backdrop-blur-[1px]" />
+          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#205187]/10 blur-3xl" />
+          <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-[#334155]/10 blur-3xl" />
+        </div>
 
-  if (error && !activity) {
-    return (
-      <div className="mx-auto max-w-4xl px-4 py-12 text-red-600">
-        {error}
-      </div>
+        <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+          <div className="rounded-3xl border border-slate-200 bg-white/70 p-8 shadow-sm backdrop-blur-md">
+            <div className="flex items-center gap-3 text-sm font-semibold text-slate-600">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-[#205187]" />
+              Chargement…
+            </div>
+          </div>
+        </div>
+      </main>
     );
-  }
+
+  if (error && !activity)
+      return (
+        <main className="relative min-h-screen px-32 text-slate-900">
+          {/* Background */}
+          <div className="fixed inset-0 -z-20 bg-white" />
+          <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#205187]/10 via-white/75 to-[#334155]/10" />
+          <div className="fixed inset-0 -z-10">
+            <div className="absolute inset-0 bg-white/55 backdrop-blur-[1px]" />
+            <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#205187]/10 blur-3xl" />
+            <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-[#334155]/10 blur-3xl" />
+          </div>
+          <div className="mt-6">
+            <Link
+              to="/activities"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
+            >
+              ← Retour aux activités
+            </Link>
+          </div>
+          <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-4">
+            <div className="flex flex-col justify-center items-center w-full max-w-md rounded-3xl border border-red-200 bg-red-50/80 p-8 shadow-sm backdrop-blur-md">
+              <h2 className="text-lg font-extrabold text-red-700">
+                Une erreur est survenue
+              </h2>
+
+              <p className="mt-2 text-sm text-red-600">
+                {error}
+              </p>
+            </div>
+          </div>
+        </main>
+      );
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-10">
