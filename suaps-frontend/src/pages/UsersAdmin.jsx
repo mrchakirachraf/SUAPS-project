@@ -601,6 +601,45 @@ export default function UsersAdmin() {
         </div>
       </div>
     )}
+  
+  <Link
+    to="/admin/users/new-moniteur"
+    className="
+      group fixed bottom-6 right-6 z-50
+      flex items-center justify-center
+      h-14 w-14
+      rounded-full bg-[#334155] text-white shadow-lg
+      transition-all duration-300 ease-out
+      hover:w-60 hover:rounded-2xl hover:shadow-xl
+      active:scale-95
+      overflow-hidden
+    "
+    aria-label="Ajouter un moniteur"
+  >
+    {/* PLUS */}
+    <span
+      className="
+        flex items-center justify-center
+        text-3xl font-black
+        leading-none
+        select-none
+      "
+    >
+      +
+    </span>
+
+    {/* TEXT */}
+    <span
+      className="
+        ml-0 max-w-0 overflow-hidden whitespace-nowrap
+        text-sm font-extrabold
+        transition-all duration-300
+        group-hover:ml-3 group-hover:max-w-[220px]
+      "
+    >
+      Ajouter un moniteur
+    </span>
+  </Link>
 
 
   </main>
