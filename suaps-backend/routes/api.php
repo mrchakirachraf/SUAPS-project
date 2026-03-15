@@ -24,6 +24,8 @@ use App\Http\Controllers\Admin\SecretariatAdminController;
 
 use App\Http\Controllers\EvaluationController;
 
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ActiviteParticipantsExport;
 
 
 
@@ -119,3 +121,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
 
+
+Route::get('/activites/{id}/export', function ($id) {
+    return Excel::download(
+        new ActiviteParticipantsExport($id),
+        "activite_$id.xlsx"
+    );
+});

@@ -18,9 +18,8 @@ class ActiviteSeeder extends Seeder
         $types      = TypeEvenement::all();
         $moniteurs  = Moniteur::all();
 
-
         if ($categories->isEmpty() || $sites->isEmpty() || $types->isEmpty() || $moniteurs->isEmpty()) {
-            $this->command?->warn("ActiviteSeeder skipped: missing base data (categories/sites/types/moniteurs).");
+            $this->command?->warn("ActiviteSeeder skipped: missing base data.");
             return;
         }
 
@@ -31,10 +30,8 @@ class ActiviteSeeder extends Seeder
         $horaires = ['08:00-10:00','10:00-12:00','14:00-16:00','16:00-18:00','18:00-20:00'];
         $suffixes = ['Initiation','Intermédiaire','Avancé','Loisir','Tournoi','Entraînement'];
 
-        $target = 30;   // ✅ EXACT number of activities you want
+        $target = 30;
         $created = 0;
-
-        // We try multiple attempts to ensure we reach exactly 30 unique rows
         $attempts = 0;
 
         while ($created < $target && $attempts < 500) {
@@ -43,10 +40,9 @@ class ActiviteSeeder extends Seeder
             $cat = $categories->random();
             $site = $sites->random();
             $typeEvt = $types->random();
-            $moniteur = $moniteurs->random();
 
             $jour = $jours[array_rand($jours)];
-            // optional: sometimes day is null for events (manifestation/competition)
+
             if (in_array($typeEvt->libelle, ['Manifestation','Compétition'], true) && rand(0, 5) === 0) {
                 $jour = null;
             }
@@ -55,13 +51,10 @@ class ActiviteSeeder extends Seeder
             $horaire = $horaires[array_rand($horaires)];
             $statut  = $statuts[array_rand($statuts)];
             $tAct    = $typesActivite[array_rand($typesActivite)];
-            $visible = (rand(1, 10) <= 8); // 80% visible
+            $visible = (rand(1, 10) <= 8);
 
-            // Make libelle unique-ish to avoid duplicates when re-running
             $libelle = $cat->nom.' - '.$suffixes[array_rand($suffixes)].' ('.$site->nom.') #'.($created + 1);
 
-
-            // Dates par défaut
             $dateInsS1 = null;
             $dateNoteS1 = null;
             $dateInsS2 = null;
@@ -86,8 +79,6 @@ class ActiviteSeeder extends Seeder
                     break;
             }
 
-
-            // Use firstOrCreate so we don't create duplicates if you run again
             $act = Activite::firstOrCreate(
                 ['libelle' => $libelle],
                 [
@@ -102,7 +93,6 @@ class ActiviteSeeder extends Seeder
                     'description_pre_inscription' => 'Pré-inscription en ligne puis validation du moniteur.',
                     'quota_etudiant' => rand(10, 40),
                     'quota_personnel' => rand(2, 10),
-                    // ✅ Dates conditionnelles selon la période
                     'date_limite_inscription_s1' => $dateInsS1,
                     'date_limite_note_s1'        => $dateNoteS1,
                     'date_limite_inscription_s2' => $dateInsS2,
@@ -112,12 +102,19 @@ class ActiviteSeeder extends Seeder
                     'categorie_id' => $cat->id,
                     'site_id' => $site->id,
                     'type_evenement_id' => $typeEvt->id,
-                    'moniteur_id' => $moniteur->id,
                 ]
             );
 
-            // Only count if it was newly created
             if ($act->wasRecentlyCreated) {
+
+                // attach 1 to 3 random moniteurs
+                $randomMoniteurs = $moniteurs
+                    ->random(rand(1, min(3, $moniteurs->count())))
+                    ->pluck('id')
+                    ->toArray();
+
+                $act->moniteurs()->sync($randomMoniteurs);
+
                 $created++;
             }
         }

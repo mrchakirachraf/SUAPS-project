@@ -57,7 +57,7 @@ class ActiviteController extends Controller
         $isSuaps = $this->isSuapsMoniteur($user);
 
         $query = Activite::query()
-            ->with(['categorie', 'site', 'typeEvenement', 'moniteur.user']);
+            ->with(['categorie', 'site', 'typeEvenement', 'moniteurs.user']);
 
         // ✅ visibility rule:
         // - if NOT SUAPS moniteur => always only visible activities
@@ -134,7 +134,7 @@ class ActiviteController extends Controller
             'categorie',
             'site',
             'typeEvenement',
-            'moniteur.user',
+            'moniteurs.user',
             'inscriptions',
             'evaluations'
         ]);
@@ -175,12 +175,19 @@ class ActiviteController extends Controller
             'categorie_id' => ['required', 'exists:categories,id'],
             'site_id' => ['required', 'exists:sites,id'],
             'type_evenement_id' => ['required', 'exists:type_evenements,id'],
-            'moniteur_id' => ['required', 'exists:moniteurs,id'],
+            'moniteurs' => ['required','array'],
+            'moniteurs.*' => ['exists:moniteurs,id'],
             'type_activite' => ['required', Rule::in(['évaluée','competitif','non évaluée','évaluée/competitive'])],
         ]);
 
-        // Crée l'activité
+        $moniteurs = $validated['moniteurs'];
+        unset($validated['moniteurs']);
+
         $activite = Activite::create($validated);
+
+        $activite->moniteurs()->sync($moniteurs);
+
+        $activite->load(['categorie','site','typeEvenement','moniteurs.user']);
 
         return response()->json($activite, 201);
     }
@@ -196,7 +203,7 @@ class ActiviteController extends Controller
             'categorie',
             'site',
             'typeEvenement',
-            'moniteur.user',
+            'moniteurs.user',
             'inscriptions',
             'evaluations'
         ])->findOrFail($id);
@@ -246,13 +253,18 @@ class ActiviteController extends Controller
             'categorie_id' => ['required', 'exists:categories,id'],
             'site_id' => ['required', 'exists:sites,id'],
             'type_evenement_id' => ['required', 'exists:type_evenements,id'],
-            'moniteur_id' => ['required', 'exists:moniteurs,id'],
+            'moniteurs' => ['required','array'],
+            'moniteurs.*' => ['exists:moniteurs,id'],
         ]);
+
+        $moniteurs = $validated['moniteurs'];
+        unset($validated['moniteurs']);
 
         $activite->update($validated);
 
-        // return fresh with relations (useful for front)
-        $activite->load(['categorie','site','typeEvenement','moniteur.user']);
+        $activite->moniteurs()->sync($moniteurs);
+
+        $activite->load(['categorie','site','typeEvenement','moniteurs.user']);
 
         return response()->json($activite);
     }

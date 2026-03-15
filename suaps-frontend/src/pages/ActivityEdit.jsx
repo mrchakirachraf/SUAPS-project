@@ -52,7 +52,7 @@ export default function ActivityEdit() {
     categorie_id: "",
     site_id: "",
     type_evenement_id: "",
-    moniteur_id: "",
+    moniteurs: [],
   });
 
   // OPTIONAL: load selects (categories, sites, types, moniteurs)
@@ -131,7 +131,7 @@ export default function ActivityEdit() {
             categorie_id: actData.categorie_id ?? actData.categorie?.id ?? "",
             site_id: actData.site_id ?? actData.site?.id ?? "",
             type_evenement_id: actData.type_evenement_id ?? actData.typeEvenement?.id ?? "",
-            moniteur_id: actData.moniteur_id ?? "",
+            moniteurs: actData.moniteurs ? actData.moniteurs.map(m => m.id) : [],
         });
 
 
@@ -417,20 +417,42 @@ export default function ActivityEdit() {
           </label>
 
           <label className="block">
-            <span className="text-xs font-semibold text-slate-600">Moniteur</span>
+            <span className="text-xs font-semibold text-slate-600">Moniteurs</span>
+
             <select
-              value={form.moniteur_id}
-              onChange={(e) => setField("moniteur_id", e.target.value)}
+              multiple
+              value={form.moniteurs}
+              onChange={(e) =>
+                setField(
+                  "moniteurs",
+                  Array.from(e.target.selectedOptions, (o) => Number(o.value))
+                )
+              }
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2"
-              required
             >
-              <option value="">—</option>
-              {moniteurs.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.user ? `${m.user.prenom ?? ""} ${m.user.nom ?? ""}` : `Moniteur #${m.id}`}
-                </option>
-              ))}
+              {[...moniteurs]
+                  .sort((a, b) => {
+                    const nomA = a.user?.nom?.toLowerCase() || "";
+                    const nomB = b.user?.nom?.toLowerCase() || "";
+
+                    if (nomA === nomB) {
+                      const prenomA = a.user?.prenom?.toLowerCase() || "";
+                      const prenomB = b.user?.prenom?.toLowerCase() || "";
+                      return prenomA.localeCompare(prenomB);
+                    }
+
+                    return nomA.localeCompare(nomB);
+                  })
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.user?.nom} {m.user?.prenom}
+                    </option>
+                  ))}
             </select>
+
+            <p className="mt-1 text-xs text-slate-500">
+              Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs moniteurs.
+            </p>
           </label>
 
           <label className="flex items-center gap-3 sm:col-span-2">

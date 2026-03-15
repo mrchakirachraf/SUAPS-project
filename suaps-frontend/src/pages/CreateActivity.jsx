@@ -28,7 +28,7 @@ export default function CreateActivity() {
     categorie_id: "",
     site_id: "",
     type_evenement_id: "",
-    moniteur_id: "",
+    moniteurs: [],
   };
 
   const [form, setForm] = useState(emptyForm);
@@ -76,8 +76,9 @@ export default function CreateActivity() {
       form.categorie_id &&
       form.site_id &&
       form.type_evenement_id &&
-      form.moniteur_id;
-    setIsInvalid(!requiredFilled);
+      form.moniteurs.length > 0;
+
+      setIsInvalid(!requiredFilled);
   }, [form]);
 
   async function submit(e) {
@@ -321,24 +322,47 @@ export default function CreateActivity() {
                 <option value="évaluée/competitive">Évaluée/Compétitive</option>
               </select>
             </div>
-            {/* Moniteur */}
+            
+            {/* Moniteurs */}
             <div className="flex flex-col">
-              <label className="font-semibold text-slate-700">Moniteur *</label>
+              <label className="font-semibold text-slate-700">Moniteurs *</label>
+
               <select
+                multiple
                 required
-                value={form.moniteur_id}
-                onChange={(e) =>
-                  setForm({ ...form, moniteur_id: e.target.value })
-                }
-                className="rounded-xl border px-3 py-2"
+                value={form.moniteurs}
+                onChange={(e) => {
+                  const selected = Array.from(e.target.selectedOptions).map(
+                    (opt) => Number(opt.value)
+                  );
+
+                  setForm({ ...form, moniteurs: selected });
+                }}
+                className="rounded-xl border px-3 py-2 h-32"
               >
-                <option value="">-- Choisir --</option>
-                {moniteurs.map(m => (
-                  <option key={m.id} value={m.id}>
-                    {m.user?.nom} {m.user?.prenom}
-                  </option>
-                ))}
+                {[...moniteurs]
+                  .sort((a, b) => {
+                    const nomA = a.user?.nom?.toLowerCase() || "";
+                    const nomB = b.user?.nom?.toLowerCase() || "";
+
+                    if (nomA === nomB) {
+                      const prenomA = a.user?.prenom?.toLowerCase() || "";
+                      const prenomB = b.user?.prenom?.toLowerCase() || "";
+                      return prenomA.localeCompare(prenomB);
+                    }
+
+                    return nomA.localeCompare(nomB);
+                  })
+                  .map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.user?.nom} {m.user?.prenom}
+                    </option>
+                  ))}
               </select>
+
+              <span className="text-xs text-slate-500 mt-1">
+                Maintenir Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs moniteurs.
+              </span>
             </div>
 
             {/* Quotas */}

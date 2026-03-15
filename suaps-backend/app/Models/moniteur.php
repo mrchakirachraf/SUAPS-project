@@ -34,9 +34,14 @@ class Moniteur extends Model
     /**
      * Activités encadrées par le moniteur
      */
+    // public function activites()
+    // {
+    //     return $this->hasMany(Activite::class);
+    // }
+
     public function activites()
     {
-        return $this->hasMany(Activite::class);
+        return $this->belongsToMany(Activite::class, 'activite_moniteur');
     }
 
     public function inscriptions()

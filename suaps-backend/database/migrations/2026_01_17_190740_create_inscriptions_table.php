@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('inscriptions', function (Blueprint $table) {
@@ -17,22 +14,21 @@ return new class extends Migration
             $table->date('date_pre_inscription');
             $table->date('date_inscription_def')->nullable();
 
-            $table->enum('statut', ['en_cours', 'valide', 'refuse'])->default('en_cours');
+            $table->enum('statut', ['en_cours', 'valide', 'refuse'])
+                  ->default('en_cours');
+
             $table->string('num_tel_etud')->nullable();
 
-            $table->foreignId('moniteur_id')->constrained('moniteurs');
             $table->foreignId('user_id')->constrained();
             $table->foreignId('activite_id')->constrained();
 
             $table->timestamps();
+
+            // prevent duplicate registration
             $table->unique(['user_id', 'activite_id']);
         });
     }
 
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('inscriptions');

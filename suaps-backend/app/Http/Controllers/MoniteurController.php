@@ -91,9 +91,11 @@ class MoniteurController extends Controller
 
         $activite = Activite::with(['inscriptions.user'])->findOrFail($activiteId);
 
-        // comparer moniteurs.id avec activites.moniteur_id
-        // SUAPS OU moniteur créateur
-        if (!$moniteur->is_suaps && (int)$activite->moniteur_id !== (int)$moniteur->id) {
+        // Vérifier que le moniteur est assigné à cette activité (ou SUAPS)
+        if (
+            !$moniteur->is_suaps &&
+            !$activite->moniteurs()->where('moniteur_id', $moniteur->id)->exists()
+        ) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
@@ -142,8 +144,10 @@ class MoniteurController extends Controller
         $inscription = Inscription::with('activite')->findOrFail($inscriptionId);
         $activite = $inscription->activite;
 
-        if (!$moniteur->is_suaps &&
-            (int)$activite->moniteur_id !== (int)$moniteur->id) {
+        if (
+            !$moniteur->is_suaps &&
+            !$activite->moniteurs()->where('moniteur_id', $moniteur->id)->exists()
+        ) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
@@ -198,8 +202,13 @@ class MoniteurController extends Controller
         ])->findOrFail($inscriptionId);
 
         // sécurité : même moniteur ou SUAPS
-        if (!$moniteur->is_suaps &&
-            (int)$inscription->activite->moniteur_id !== (int)$moniteur->id) {
+        if (
+            !$moniteur->is_suaps &&
+            !$inscription->activite
+                ->moniteurs()
+                ->where('moniteur_id', $moniteur->id)
+                ->exists()
+        ) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 
@@ -236,7 +245,10 @@ class MoniteurController extends Controller
 
         $activite = Activite::with('inscriptions.user')->findOrFail($activiteId);
 
-        if (!$moniteur->is_suaps && $activite->moniteur_id !== $moniteur->id) {
+        if (
+            !$moniteur->is_suaps &&
+            !$activite->moniteurs()->where('moniteur_id', $moniteur->id)->exists()
+        ) {
             return response()->json(['message' => 'Accès refusé'], 403);
         }
 

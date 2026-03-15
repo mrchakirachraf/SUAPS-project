@@ -64,6 +64,20 @@ export default function ActivityPreInscrits() {
     loadAll();
   }, [id]);
 
+  async function downloadExcel() {
+    const res = await fetch(`${API}/api/activites/${id}/export`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `activite_${id}.xlsx`;
+    a.click();
+  }
+
   // --- Détails pré-inscription ---
   async function openDetails(inscriptionId) {
     setDetailsLoading(true);
@@ -197,6 +211,12 @@ export default function ActivityPreInscrits() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl font-extrabold my-6">{activity.libelle}</h2>
+          <button
+            onClick={downloadExcel}
+            className="rounded-xl bg-[#205187] px-5 py-2 text-sm font-bold text-white hover:opacity-90"
+          >
+            Télécharger Excel
+          </button>
           <Link
             to={`/activities/${id}`}
             className="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"

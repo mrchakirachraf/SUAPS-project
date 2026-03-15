@@ -60,7 +60,6 @@ return new class extends Migration
             $table->foreignId('categorie_id')->constrained()->cascadeOnDelete();
             $table->foreignId('site_id')->constrained()->cascadeOnDelete();
             $table->foreignId('type_evenement_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('moniteur_id')->constrained('moniteurs')->cascadeOnDelete();
 
             $table->timestamps();
         });

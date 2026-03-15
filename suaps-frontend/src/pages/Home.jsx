@@ -57,7 +57,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CATEGORIES */}
+      {/* CATEGORIES
       <section id="categories" className="border-t border-slate-200 bg-slate-50">
         <div className="mx-auto max-w-6xl px-4 py-16">
           <div className="max-w-3xl mx-auto text-left mb-12">
@@ -120,7 +120,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CONTACT */}
       <section

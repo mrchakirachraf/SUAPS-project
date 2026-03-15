@@ -45,11 +45,16 @@ class Activite extends Model
         return $this->belongsTo(TypeEvenement::class);
     }
 
-    public function moniteur()
+    // public function moniteur()
+    // {
+    //     return $this->belongsTo(Moniteur::class);
+    // }
+    
+    public function moniteurs()
     {
-        return $this->belongsTo(Moniteur::class);
+        return $this->belongsToMany(Moniteur::class, 'activite_moniteur');
     }
-
+    
     public function evaluations()
     {
         return $this->hasMany(Evaluation::class);

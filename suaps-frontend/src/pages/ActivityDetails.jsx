@@ -119,10 +119,12 @@ export default function ActivityDetails() {
 
   const canSeePreinscrits = useMemo(() => {
     if (!user || !activity) return false;
-    // ✅ SUAPS moniteur sees it always
+
     if (isSuaps) return true;
-    // ✅ activity owner moniteur can see
-    return user?.moniteur?.id === activity.moniteur_id;
+
+    const moniteurs = activity.moniteurs ?? [];
+
+    return moniteurs.some((m) => m.id === user?.moniteur?.id);
   }, [user, activity, isSuaps]);
 
   
@@ -161,7 +163,7 @@ export default function ActivityDetails() {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data?.message || "Impossible de charger l’activité.");
-
+        console.log(data)
         setActivity(data);
       } catch (e) {
         if (e.name !== "AbortError") setErr(e.message || "Erreur réseau.");
@@ -310,12 +312,19 @@ export default function ActivityDetails() {
 
             {/* Side card */}
             <aside className="rounded-3xl border border-slate-200 bg-white/75 p-6 shadow-sm backdrop-blur-md">
-              <h3 className="text-base font-extrabold text-slate-900">Moniteur</h3>
-              <p className="mt-2 text-sm text-slate-600">
-                {activity.moniteur?.user
-                  ? `${activity.moniteur.user.prenom ?? ""} ${activity.moniteur.user.nom ?? ""}`.trim()
-                  : "—"}
-              </p>
+              <h3 className="text-base font-extrabold text-slate-900">Moniteurs</h3>
+
+                {Array.isArray(activity.moniteurs) && activity.moniteurs.length > 0 ? (
+                  <ul className="mt-2 text-sm text-slate-600 space-y-1">
+                    {activity.moniteurs.map((m) => (
+                      <li key={m.id}>
+                        {`${m.user?.prenom ?? ""} ${m.user?.nom ?? ""}`.trim()}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 text-sm text-slate-600">—</p>
+                )}
 
               {(isMoniteur || isSuaps) && (
                 <>
