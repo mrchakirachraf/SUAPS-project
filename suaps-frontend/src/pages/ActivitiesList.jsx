@@ -479,9 +479,8 @@ export default function ActivitiesList() {
         const data = await res.json();
         if (!res.ok) return setCanAddActivity(false);
         
-        const moniteur = Boolean(data.moniteur.is_suaps);
+        const moniteur = Boolean(data.moniteur);
         const suaps = Boolean(data.moniteur.is_suaps);          
-
         setIsMoniteur(moniteur);
         setIsSuaps(suaps);
         setCanAddActivity(moniteur && suaps); // keep your existing logic
@@ -513,6 +512,15 @@ export default function ActivitiesList() {
   // console.log("user:", user);
  
   // console.log(JSON.parse(localStorage.getItem("user")));
+
+  const [mesActivitesOnly, setMesActivitesOnly] = useState(false);
+  const filteredItems = useMemo(() => {
+    if (!mesActivitesOnly || !user.user?.moniteur?.id) return items;
+    return items.filter((a) => {
+      const moniteurs = a.moniteurs ?? [];
+      return moniteurs.some((m) => m.id === user.user.moniteur.id);
+    });
+  }, [items, mesActivitesOnly, user]);
 
   
 
@@ -648,7 +656,21 @@ export default function ActivitiesList() {
                 { value: "50", label: "50" },
               ]}
             />
-            
+
+          {isMoniteur && (
+            <button
+              onClick={() => setMesActivitesOnly(!mesActivitesOnly)}
+              className={`relative px-5 py-2 rounded-full font-semibold overflow-hidden transition-all duration-300
+                ${mesActivitesOnly ? "bg-[#334155] text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"}`}
+            >
+              <span
+                className={`absolute inset-0 rounded-full transition-transform duration-300 
+                  ${mesActivitesOnly ? "scale-x-100" : "scale-x-0"} bg-[#334155]/20`}
+              ></span>
+              <span className="relative z-10">Mes activités</span>
+            </button>
+          )}  
+                      
 
 
           </div>
@@ -666,6 +688,7 @@ export default function ActivitiesList() {
                 setStatut("");
                 setTypeActivite("");
                 setVisibleFilter("");
+                setMesActivitesOnly(false);
               }}
               className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
             >
@@ -695,12 +718,12 @@ export default function ActivitiesList() {
         {!loading && !err && (
           <div className="mt-8 grid gap-5 md:grid-cols-2">
             
-            {items.map((a) => (
+            {filteredItems.map((a) => (
               <ActivityCard
                 key={a.id}
                 a={a}
                 showQuota={isMoniteur}
-                showVisibility={isSuaps} // only SUAPS sees Visible/Masquée badge
+                showVisibility={isSuaps}
               />
             ))}
             {items.length === 0 && (

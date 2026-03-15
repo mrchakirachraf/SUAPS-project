@@ -163,7 +163,7 @@ export default function ActivityDetails() {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data?.message || "Impossible de charger l’activité.");
-        console.log(data)
+
         setActivity(data);
       } catch (e) {
         if (e.name !== "AbortError") setErr(e.message || "Erreur réseau.");
