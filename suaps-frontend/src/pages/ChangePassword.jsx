@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-
 function FormInput({ label, className = "", ...props }) {
   return (
     <div>
@@ -19,13 +18,17 @@ function FormInput({ label, className = "", ...props }) {
   );
 }
 
-export default function Login() {
-  const [formData, setFormData] = useState({ email: "", password: "" });
+export default function ChangePassword() {
+  const [formData, setFormData] = useState({
+    email: "",
+    old_password: "",
+    new_password: "",
+    new_password_confirmation: "",
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,10 +39,16 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setSuccess("");
-    setLoading(true);
 
+    // Frontend check for password confirmation
+    if (formData.new_password !== formData.new_password_confirmation) {
+      setError("Le nouveau mot de passe et sa confirmation ne correspondent pas.");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/auth/login", {
+      const response = await fetch("http://127.0.0.1:8000/api/auth/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -51,22 +60,11 @@ export default function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || "Identifiants incorrects");
+        throw new Error(data.message || "Erreur lors du changement de mot de passe");
       }
 
-      // ✅ Stockage du token
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data));
-      
-      window.dispatchEvent(new Event("auth:changed"));
-
-      console.log("Connexion réussie", data);
-      setSuccess("Connexion réussie! Redirection en cours...");
-
-      setTimeout(() => navigate("/activities"), 1500);
-
-    
-
+      setSuccess("Mot de passe changé avec succès ! Redirection...");
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -74,29 +72,17 @@ export default function Login() {
     }
   };
 
-
   return (
     <main className="relative min-h-screen text-slate-900">
-      {/* ✅ Fixed background image (fresh) */}
-      <div className="fixed inset-0 -z-20 bg-white">
-        <img
-          src="/basketball-player-action-sunset 1.png"
-          alt="Basketball Player"
-          className="h-full w-full object-contain object-right opacity-85"
-        />
-      </div>
-
-      {/* ✅ Fresh clear overlay (NO BLACK) */}
+      {/* Background */}
+      <div className="fixed inset-0 -z-20 bg-white" />
       <div className="fixed inset-0 -z-10 bg-gradient-to-br from-[#334155]/10 via-white/75 to-[#334155]/10" />
-
-      {/* ✅ Soft frosted layer */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-white/55 backdrop-blur-[1px]" />
         <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-[#334155]/10 blur-3xl" />
         <div className="absolute -bottom-28 -right-20 h-80 w-80 rounded-full bg-[#334155]/10 blur-3xl" />
       </div>
 
-      {/* Content */}
       <div className="mx-auto max-w-6xl px-4 py-16">
         <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
           {/* Left text */}
@@ -106,38 +92,17 @@ export default function Login() {
             </p>
 
             <h1 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl">
-              Se connecter
+              Changer le mot de passe
             </h1>
 
             <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
-              Connectez-vous pour accéder à votre espace personnel et gérer vos
-              activités sportives.
+              Entrez votre email et votre ancien mot de passe pour définir un nouveau mot de passe.
             </p>
-
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
-                <div className="text-sm font-extrabold text-slate-900">Accès sécurisé</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  Authentification protégée et données sécurisées.
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-white/70 p-4 shadow-sm backdrop-blur-md">
-                <div className="text-sm font-extrabold text-slate-900">Espace personnalisé</div>
-                <div className="mt-1 text-sm text-slate-600">
-                  Accédez à vos inscriptions et validations.
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Login card */}
+          {/* Change password card */}
           <div className="rounded-3xl border border-slate-200 bg-white/70 p-6 shadow-sm backdrop-blur-md sm:p-8">
-            <h2 className="text-lg font-extrabold text-slate-900">Connexion</h2>
-            <p className="mt-1 text-sm text-slate-600">
-              Entrez vos identifiants pour continuer.
-            </p>
-
+            <h2 className="text-lg font-extrabold text-slate-900">Changement de mot de passe</h2>
             <form onSubmit={handleSubmit} className="mt-6 space-y-6">
               <FormInput
                 label="Email"
@@ -150,22 +115,34 @@ export default function Login() {
               />
 
               <FormInput
-                label="Mot de passe"
+                label="Ancien mot de passe"
                 type="password"
-                name="password"
-                value={formData.password}
+                name="old_password"
+                value={formData.old_password}
                 onChange={handleChange}
                 placeholder="••••••••"
                 required
               />
 
-              <div className="flex items-center justify-between  text-sm">
-                <Link to="/changePassword" className="hover:underline"><span className="text-slate-500">Changer mot de passe 🔑</span></Link>
+              <FormInput
+                label="Nouveau mot de passe"
+                type="password"
+                name="new_password"
+                value={formData.new_password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+              />
 
-                <Link to="/register" className="font-semibold text-[#334155] hover:underline">
-                  Créer un compte
-                </Link>
-              </div>
+              <FormInput
+                label="Confirmer le nouveau mot de passe"
+                type="password"
+                name="new_password_confirmation"
+                value={formData.new_password_confirmation}
+                onChange={handleChange}
+                placeholder="••••••••"
+                required
+              />
 
               {success && (
                 <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
@@ -178,19 +155,17 @@ export default function Login() {
                 </div>
               )}
 
-
               <button
                 type="submit"
                 disabled={loading || success}
                 className="w-full rounded-xl bg-[#334155] px-6 py-3 text-sm font-extrabold text-white shadow-sm hover:opacity-95 focus:outline-none focus:ring-4 focus:ring-[#334155]/25 disabled:opacity-60"
               >
-                {loading ? "Connexion..." : "Se connecter"}
+                {loading ? "Modification..." : "Changer le mot de passe"}
               </button>
 
-
-              <div className="text-center">
-                <Link to="/" className="text-sm font-semibold text-[#334155] hover:underline">
-                  ← Retour à l’accueil
+              <div className="text-center mt-4">
+                <Link to="/login" className="text-sm font-semibold text-[#334155] hover:underline">
+                  ← Retour à la connexion
                 </Link>
               </div>
             </form>

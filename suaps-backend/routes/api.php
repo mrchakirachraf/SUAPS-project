@@ -40,6 +40,7 @@ Route::post('/auth/register/etudiant', [RegisterEtudiantController::class, 'regi
 Route::post('/auth/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/auth/logout', [LogoutController::class, 'logout']);
 Route::post('/auth/register/personnel', [RegisterPersonnelController::class, 'register']);
+Route::post('/auth/change-password', [LoginController::class, 'changePassword']);
 
 Route::get('/secretariats', [SecretariatAdminController::class, 'index']);
 
@@ -128,3 +129,5 @@ Route::get('/activites/{id}/export', function ($id) {
         "activite_$id.xlsx"
     );
 });
+
+

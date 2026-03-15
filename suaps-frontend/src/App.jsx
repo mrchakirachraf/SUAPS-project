@@ -12,6 +12,7 @@ import UsersAdmin from "./pages/UsersAdmin";
 import SecretariatsAdmin from "./pages/SecretariatsAdmin";
 import ActivityEdit from "./pages/ActivityEdit";
 import AddMoniteur from "./pages/AddMoniteur";
+import ChangePassword from "./pages/ChangePassword";
 
 function AppContent() {
   const location = useLocation();
@@ -38,6 +39,9 @@ function AppContent() {
         <Route path="/admin/secretariat" element={<SecretariatsAdmin />} />
         <Route path="/activities/:id/edit" element={<ActivityEdit />} />
         <Route path="/admin/users/new-moniteur" element={<AddMoniteur />} />
+        
+        <Route path="/changePassword" element={<ChangePassword />} />
+
 
 
 

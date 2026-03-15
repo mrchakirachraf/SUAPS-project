@@ -61,4 +61,23 @@ class LoginController extends Controller
         ]);
 
     }
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'old_password' => 'required|string',
+            'new_password' => 'required|string|min:6|confirmed', // optionally
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user || !Hash::check($request->old_password, $user->password)) {
+            return response()->json(['message' => 'Email ou ancien mot de passe incorrect'], 400);
+        }
+
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        return response()->json(['message' => 'Mot de passe changé avec succès']);
+    }
 }
