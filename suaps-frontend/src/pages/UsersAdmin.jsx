@@ -267,22 +267,37 @@ export default function UsersAdmin() {
 }
 
 const openCreateMoniteur = (u) => {
-    const newUsername = `${u.username}.etu.moniteur`;
+  if (!u) return;
 
-    const emailParts = (u.email || "").split("@");
-    const domain = emailParts[1] || "etu.eilco.univ-littoral.fr";
-    const newEmail = `${u.username}.etu.moniteur@${domain}`;
+  const newUsername = `${u.username}.etu.moniteur`;
 
-    setStudentForMoniteur(u);
-    setCreateMoniteurError("");
-    setMoniteurForm({
-      username: newUsername,
-      email: newEmail,
-      password: "",
-      password_confirmation: "",
-    });
-    setOpenCreateMoniteurModal(true);
-  };
+  const email = u.email || "";
+  let newEmail = "";
+
+  const atIndex = email.indexOf("@");
+
+  if (atIndex !== -1) {
+    const before = email.slice(0, atIndex);
+    const after = email.slice(atIndex); // includes "@"
+    newEmail = `${before}.etu.moniteur${after}`;
+  } else {
+    // fallback if email is weird
+    newEmail = `${u.username}.etu.moniteur@example.com`;
+  }
+
+  setOpen(false);
+
+  setStudentForMoniteur(u);
+  setCreateMoniteurError("");
+  setMoniteurForm({
+    username: newUsername,
+    email: newEmail,
+    password: "",
+    password_confirmation: "",
+  });
+
+  setOpenCreateMoniteurModal(true);
+};
 
   const closeCreateMoniteur = () => {
     setOpenCreateMoniteurModal(false);
@@ -494,22 +509,13 @@ const openCreateMoniteur = (u) => {
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-2">
                         {/* ✅ bouton details (affiché surtout pour etudiant) */}
-                        {u.type_compte === "etudiant" ? (
-  <>
-                            <button
-                              onClick={() => openDetails(u)}
-                              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                            >
-                              Voir détails
-                            </button>
-
-                            <button
-                              onClick={() => openCreateMoniteur(u)}
-                              className="rounded-xl bg-[#205187] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-95"
-                            >
-                              Créer moniteur
-                            </button>
-                          </>
+                                                {u.type_compte === "etudiant" ? (
+                          <button
+                            onClick={() => openDetails(u)}
+                            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                          >
+                            Voir détails
+                          </button>
                         ) : null}
 
                         {/* ton select existant */}
@@ -697,6 +703,14 @@ const openCreateMoniteur = (u) => {
                 >
                   Annuler
                 </button>
+
+                <button
+                  onClick={() => openCreateMoniteur(selectedUser)}
+                  className="rounded-xl bg-[#334155] px-4 py-2 text-sm font-extrabold text-white hover:opacity-95"
+                >
+                  Créer moniteur
+                </button>
+
                 <button
                   onClick={saveDetails}
                   className="rounded-xl bg-[#205187] px-4 py-2 text-sm font-extrabold text-white hover:opacity-95"
