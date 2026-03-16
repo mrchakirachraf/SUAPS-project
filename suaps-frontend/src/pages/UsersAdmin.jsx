@@ -28,6 +28,18 @@ export default function UsersAdmin() {
     secretariat_id: "",
   });
 
+  const [openCreateMoniteurModal, setOpenCreateMoniteurModal] = useState(false);
+  const [studentForMoniteur, setStudentForMoniteur] = useState(null);
+  const [createMoniteurError, setCreateMoniteurError] = useState("");
+  const [creatingMoniteur, setCreatingMoniteur] = useState(false);
+
+  const [moniteurForm, setMoniteurForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+  });
+
   async function loadCarteImage(userId) {
     try {
       const res = await fetch(`${API}/api/users/${userId}/carte-etudiant`, {
@@ -250,7 +262,94 @@ export default function UsersAdmin() {
   } catch (e) {
     alert(e.message);
   }
+
+  
 }
+
+const openCreateMoniteur = (u) => {
+    const newUsername = `${u.username}.etu.moniteur`;
+
+    const emailParts = (u.email || "").split("@");
+    const domain = emailParts[1] || "etu.eilco.univ-littoral.fr";
+    const newEmail = `${u.username}.etu.moniteur@${domain}`;
+
+    setStudentForMoniteur(u);
+    setCreateMoniteurError("");
+    setMoniteurForm({
+      username: newUsername,
+      email: newEmail,
+      password: "",
+      password_confirmation: "",
+    });
+    setOpenCreateMoniteurModal(true);
+  };
+
+  const closeCreateMoniteur = () => {
+    setOpenCreateMoniteurModal(false);
+    setStudentForMoniteur(null);
+    setCreateMoniteurError("");
+    setCreatingMoniteur(false);
+    setMoniteurForm({
+      username: "",
+      email: "",
+      password: "",
+      password_confirmation: "",
+    });
+  };
+
+  const submitCreateMoniteur = async () => {
+    if (!studentForMoniteur) return;
+
+    if (!moniteurForm.password || moniteurForm.password.length < 8) {
+      setCreateMoniteurError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+
+    if (moniteurForm.password !== moniteurForm.password_confirmation) {
+      setCreateMoniteurError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+
+    try {
+      setCreatingMoniteur(true);
+      setCreateMoniteurError("");
+
+      const res = await fetch(
+        `${API}/api/users/${studentForMoniteur.id}/create-moniteur-from-etudiant`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: moniteurForm.username,
+            email: moniteurForm.email,
+            password: moniteurForm.password,
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.errors) {
+          const firstError = Object.values(data.errors)[0]?.[0];
+          throw new Error(firstError || data.message || "Erreur");
+        }
+        throw new Error(data.message || "Erreur");
+      }
+
+      setUsers((prev) => [...prev, data.user]);
+      closeCreateMoniteur();
+      alert("Compte moniteur créé avec succès.");
+    } catch (e) {
+      setCreateMoniteurError(e.message);
+    } finally {
+      setCreatingMoniteur(false);
+    }
+  };
 
 
 
@@ -396,13 +495,22 @@ export default function UsersAdmin() {
                       <div className="flex items-center gap-2">
                         {/* ✅ bouton details (affiché surtout pour etudiant) */}
                         {u.type_compte === "etudiant" ? (
-                          <button
-                            onClick={() => openDetails(u)}
-                            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
-                          >
-                            Voir détails
-                          </button>
-                        ) : (null) }
+  <>
+                            <button
+                              onClick={() => openDetails(u)}
+                              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                            >
+                              Voir détails
+                            </button>
+
+                            <button
+                              onClick={() => openCreateMoniteur(u)}
+                              className="rounded-xl bg-[#205187] px-3 py-1.5 text-sm font-semibold text-white hover:opacity-95"
+                            >
+                              Créer moniteur
+                            </button>
+                          </>
+                        ) : null}
 
                         {/* ton select existant */}
                         {(u.type_compte === "moniteur" || u.type_compte === "suaps") ? (
@@ -601,6 +709,111 @@ export default function UsersAdmin() {
         </div>
       </div>
     )}
+
+    {openCreateMoniteurModal && (
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center"
+    onClick={closeCreateMoniteur}
+  >
+    <div className="absolute inset-0 bg-slate-900/60" />
+
+    <div
+      className="relative w-[92vw] max-w-xl rounded-3xl border border-slate-200 bg-white p-6 shadow-xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-extrabold text-slate-900">
+            Créer un compte moniteur
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Un nouveau compte moniteur sera créé à partir de l’étudiant sélectionné.
+          </p>
+        </div>
+
+        <button
+          onClick={closeCreateMoniteur}
+          className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-sm font-bold text-slate-700 hover:bg-slate-50"
+        >
+          ✕
+        </button>
+      </div>
+
+      {studentForMoniteur && (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+          <p><span className="font-bold">Étudiant :</span> {studentForMoniteur.nom} {studentForMoniteur.prenom}</p>
+          <p><span className="font-bold">Compte actuel :</span> {studentForMoniteur.username}</p>
+        </div>
+      )}
+
+      {createMoniteurError && (
+              <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {createMoniteurError}
+              </div>
+            )}
+
+            <div className="mt-5 grid grid-cols-1 gap-3">
+              <input
+                className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                placeholder="Username"
+                value={moniteurForm.username}
+                onChange={(e) =>
+                  setMoniteurForm((p) => ({ ...p, username: e.target.value }))
+                }
+              />
+
+              <input
+                className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                placeholder="Email"
+                value={moniteurForm.email}
+                onChange={(e) =>
+                  setMoniteurForm((p) => ({ ...p, email: e.target.value }))
+                }
+              />
+
+              <input
+                type="password"
+                className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                placeholder="Mot de passe"
+                value={moniteurForm.password}
+                onChange={(e) =>
+                  setMoniteurForm((p) => ({ ...p, password: e.target.value }))
+                }
+              />
+
+              <input
+                type="password"
+                className="rounded-xl border border-slate-200 px-3 py-2 text-sm"
+                placeholder="Confirmer le mot de passe"
+                value={moniteurForm.password_confirmation}
+                onChange={(e) =>
+                  setMoniteurForm((p) => ({
+                    ...p,
+                    password_confirmation: e.target.value,
+                  }))
+                }
+              />
+
+              <div className="mt-2 flex items-center justify-end gap-2">
+                <button
+                  onClick={closeCreateMoniteur}
+                  className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-extrabold text-slate-700 hover:bg-slate-50"
+                >
+                  Annuler
+                </button>
+
+                <button
+                  onClick={submitCreateMoniteur}
+                  disabled={creatingMoniteur}
+                  className="rounded-xl bg-[#205187] px-4 py-2 text-sm font-extrabold text-white hover:opacity-95 disabled:opacity-60"
+                >
+                  {creatingMoniteur ? "Création..." : "Créer"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
   
   <Link
     to="/admin/users/new-moniteur"
@@ -641,7 +854,7 @@ export default function UsersAdmin() {
     </span>
   </Link>
 
-
+    
   </main>
 );
 

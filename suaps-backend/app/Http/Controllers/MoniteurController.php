@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Moniteur;
 use App\Models\Inscription;
 use App\Models\Activite;
@@ -69,11 +71,11 @@ class MoniteurController extends Controller
                 'user_id' => $user->moniteur->user_id,
                 'is_suaps' => (bool) $user->moniteur->is_suaps,
             ] : null,
-            
+
             'personnel' => $user->personnel ? [
                 'id' => $user->personnel->id,
             ] : null,
-            
+
             'etudiant' => $user->etudiant ? [
                 'id' => $user->etudiant->id,
             ] : null,
@@ -401,6 +403,73 @@ class MoniteurController extends Controller
     }
 
 
+    /**
+     * Créer un compte moniteur à partir d'un étudiant
+     * POST /api/users/{userId}/create-moniteur-from-etudiant
+     */
+    public function createFromEtudiant(Request $request, $userId)
+    {
+        $authUser = $request->user();
 
+        // 🔐 Seul un SUAPS peut créer un moniteur
+        if ($authUser->type_compte !== 'suaps') {
+            return response()->json([
+                'message' => 'Action non autorisée.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'username' => ['required', 'string', 'max:50', 'unique:users,username'],
+            'email' => ['required', 'email', 'max:100', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
+        ]);
+
+        $studentUser = User::with('etudiant')->findOrFail($userId);
+
+        if ($studentUser->type_compte !== 'etudiant') {
+            return response()->json([
+                'message' => 'Cet utilisateur n\'est pas un étudiant.'
+            ], 400);
+        }
+
+        if (!$studentUser->etudiant) {
+            return response()->json([
+                'message' => 'Profil étudiant introuvable.'
+            ], 400);
+        }
+
+        return DB::transaction(function () use ($validated, $studentUser) {
+            $newUser = User::create([
+                'username' => $validated['username'],
+                'nom' => $studentUser->nom,
+                'prenom' => $studentUser->prenom,
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+                'type_compte' => 'moniteur',
+            ]);
+
+            $moniteur = Moniteur::create([
+                'user_id' => $newUser->id,
+                'is_suaps' => false,
+            ]);
+
+            return response()->json([
+                'message' => 'Compte moniteur créé avec succès.',
+                'user' => [
+                    'id' => $newUser->id,
+                    'username' => $newUser->username,
+                    'nom' => $newUser->nom,
+                    'prenom' => $newUser->prenom,
+                    'email' => $newUser->email,
+                    'type_compte' => $newUser->type_compte,
+                ],
+                'moniteur' => [
+                    'id' => $moniteur->id,
+                    'user_id' => $moniteur->user_id,
+                    'is_suaps' => (bool) $moniteur->is_suaps,
+                ],
+            ], 201);
+        });
+    }
 
 }

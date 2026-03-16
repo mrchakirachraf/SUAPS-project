@@ -104,8 +104,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/users/{id}', [UserAdminController::class, 'update'])->whereNumber('id');
     Route::get('/users/{id}/carte-etudiant', [UserAdminController::class, 'carteEtudiant'])->whereNumber('id');
 
+    Route::post('/users/{userId}/create-moniteur-from-etudiant', [MoniteurController::class, 'createFromEtudiant']);
     Route::post('/users/{userId}/make-suaps', [MoniteurController::class, 'makeSuaps']);
     Route::post('/users/{userId}/make-moniteur', [MoniteurController::class, 'makeMoniteur']);
+
     Route::get('/inscriptions/{id}/details',[MoniteurController::class, 'preInscritDetails']);
 });
 
