@@ -243,10 +243,10 @@ export default function ActivityPreInscrits() {
             <tbody className="divide-y">
               {preInscrits.map(ins => (
                 <tr key={ins.id} className="hover:bg-slate-50/60 transition">
-                  <td className="py-3">{ins.nom}</td>
-                  <td>{ins.prenom}</td>
-                  <td>{ins.num_tel_etud || "—"}</td>
-                  <td>
+                  <td className="py-3 text-center">{ins.nom}</td>
+                  <td className="py-3 text-center">{ins.prenom}</td>
+                  <td className="py-3 text-center">{ins.num_tel_etud || "—"}</td>
+                  <td className="py-3 text-center">
                     {new Date(ins.date_pre_inscription).toLocaleDateString("fr-FR")}
                   </td>
                   <td className="text-right">
@@ -398,12 +398,12 @@ export default function ActivityPreInscrits() {
 
                 return (
                   <tr key={i.etudiant_id} className="hover:bg-slate-50/60 transition">
-                    <td className="py-3">{i.nom}</td>
-                    <td>{i.prenom}</td>
+                    <td className="py-3 text-center">{i.nom}</td>
+                    <td className="py-3 text-center">{i.prenom}</td>
 
                     {isEvaluated && (
                       <td>
-                        <div className="flex items-center gap-2">
+                        <div className="flex justify-center items-center gap-2">
                           <input
                             type="number"
                             min="0"
@@ -427,11 +427,11 @@ export default function ActivityPreInscrits() {
                             Enregistrer
                           </button>
 
-                          {hasNote && (
+                          {/* {hasNote && (
                             <span className="text-xs font-semibold text-green-600">
-                              ✔
+                              
                             </span>
-                          )}
+                          )} */}
                         </div>
                       </td>
                     )}
