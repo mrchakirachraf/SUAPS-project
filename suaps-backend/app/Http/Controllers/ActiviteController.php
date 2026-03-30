@@ -9,6 +9,9 @@ use App\Models\Moniteur;
 use App\Models\User;
 
 
+use App\Exports\AllActivitesParticipantsExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class ActiviteController extends Controller
 {
     /**
@@ -267,6 +270,15 @@ class ActiviteController extends Controller
         $activite->load(['categorie','site','typeEvenement','moniteurs.user']);
 
         return response()->json($activite);
+    }
+
+
+    public function exportAll()
+    {
+        return Excel::download(
+            new AllActivitesParticipantsExport,
+            'toutes_les_activites.xlsx'
+        );
     }
 
 

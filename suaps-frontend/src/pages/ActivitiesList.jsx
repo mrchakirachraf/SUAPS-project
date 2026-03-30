@@ -236,6 +236,36 @@ export default function ActivitiesList() {
   const [isMoniteur, setIsMoniteur] = useState(false);
   const [isSuaps, setIsSuaps] = useState(false);
 
+  const [downloadingAll, setDownloadingAll] = useState(false);
+
+  async function downloadAllExcel() {
+    try {
+      setDownloadingAll(true);
+
+      const token = localStorage.getItem("access_token");
+
+      const res = await fetch(`${API}/api/activites/export-all`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!res.ok) throw new Error("Erreur téléchargement");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "toutes_les_activites.xlsx";
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setDownloadingAll(false);
+    }
+  }
+
   useEffect(() => {
     scrollToTop();
   }, [page]);
@@ -761,9 +791,46 @@ export default function ActivitiesList() {
     </div>
 </div>
 
-      </div>
-          {/* ✅ Floating Add Activity button (only for moniteur SUAPS) */}
-      
+      </div>        
+        {canAddActivity && (
+          <button
+            onClick={downloadAllExcel}
+            disabled={downloadingAll}
+            className="
+              group fixed bottom-24 right-6 z-50
+              flex items-center justify-center
+              h-14 w-14
+              rounded-full bg-[#334155] text-white shadow-lg
+              transition-all duration-300 ease-out
+              hover:w-64 hover:rounded-2xl hover:shadow-xl
+              active:scale-95
+              overflow-hidden
+              disabled:bg-slate-400
+            "
+          >
+            {/* ICON */}
+            <span className="text-xl font-black">
+              {downloadingAll ? (
+                <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              ) : (
+                "⬇"
+              )}
+            </span>
+
+            {/* TEXT */}
+            <span
+              className="
+                ml-0 max-w-0 overflow-hidden whitespace-nowrap
+                text-sm font-extrabold
+                transition-all duration-300
+                group-hover:ml-3 group-hover:max-w-[250px]
+              "
+            >
+              {downloadingAll ? "Téléchargement..." : "Exporter toutes les inscriptions"}
+            </span>
+          </button>
+        )}
+
       {canAddActivity && (
         <Link
           to="/activities/new"

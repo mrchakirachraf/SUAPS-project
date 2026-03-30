@@ -28,6 +28,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ActiviteParticipantsExport;
 
 
+Route::get('/activites/export-all', [ActiviteController::class, 'exportAll']);
+
 
 
 Route::get('/moniteurs', [MoniteurController::class, 'index']);
@@ -54,8 +56,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ✅ ACTIVITES (safe order)
 Route::get('/activites/filters', [ActiviteFiltersController::class, 'index']);
-
-
 
 
 
@@ -131,5 +131,4 @@ Route::get('/activites/{id}/export', function ($id) {
         "activite_$id.xlsx"
     );
 });
-
 

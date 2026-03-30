@@ -19,6 +19,7 @@ export default function ActivityPreInscrits() {
   const [selected, setSelected] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [detailsLoading, setDetailsLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
 
   // --- Fonction pour charger les pré-inscrits ---
   async function loadPreInscrits() {
@@ -65,17 +66,29 @@ export default function ActivityPreInscrits() {
   }, [id]);
 
   async function downloadExcel() {
-    const res = await fetch(`${API}/api/activites/${id}/export`, {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      setDownloading(true);
 
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
+      const res = await fetch(`${API}/api/activites/${id}/export`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `activite_${id}.xlsx`;
-    a.click();
+      if (!res.ok) throw new Error("Erreur téléchargement");
+
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `activite_${id}.xlsx`;
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setDownloading(false);
+    }
   }
 
   // --- Détails pré-inscription ---
@@ -213,9 +226,16 @@ export default function ActivityPreInscrits() {
           <h2 className="text-3xl font-extrabold my-6">{activity.libelle}</h2>
           <button
             onClick={downloadExcel}
-            className="rounded-xl bg-[#205187] px-5 py-2 text-sm font-bold text-white hover:opacity-90"
+            disabled={downloading}
+            className={`rounded-xl px-5 py-2 text-sm font-bold text-white flex items-center gap-2
+              ${downloading ? "bg-slate-400 cursor-not-allowed" : "bg-[#205187] hover:opacity-90"}
+            `}
           >
-            Télécharger Excel
+            {downloading && (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            )}
+            
+            {downloading ? "Téléchargement..." : "Télécharger Excel"}
           </button>
           <Link
             to={`/activities/${id}`}

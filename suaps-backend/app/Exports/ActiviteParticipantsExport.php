@@ -34,7 +34,7 @@ class ActiviteParticipantsExport implements FromArray, WithHeadings
                 $ins->user->nom,
                 $ins->user->prenom,
                 $ins->statut,
-                $ins->date_pre_inscription,
+                $ins->date_inscription_def,
                 $evaluation?->note,
                 $evaluation?->moniteur?->user?->nom
                     ? $evaluation->moniteur->user->nom . " " . $evaluation->moniteur->user->prenom
@@ -51,7 +51,7 @@ class ActiviteParticipantsExport implements FromArray, WithHeadings
             'Nom',
             'Prénom',
             'Statut',
-            'Date pré-inscription',
+            'Date d\'inscription',
             'Note',
             'Moniteur évaluateur'
         ];
