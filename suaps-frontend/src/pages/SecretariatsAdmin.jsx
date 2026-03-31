@@ -21,6 +21,24 @@ export default function SecretariatsAdmin() {
   const isInvalid =
   !form.nom || !form.prenom || !form.email || !form.telephone;
 
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
 
   function resetForm() {
         setForm(emptyForm);
@@ -274,6 +292,16 @@ export default function SecretariatsAdmin() {
           </table>
         </div>
       </div>
+    {showScrollTop && (
+      <button
+        onClick={scrollToTop}
+        className="fixed bottom-6 right-6 z-50 flex items-center justify-center
+                  h-12 w-12 rounded-full bg-[#334155] text-white shadow-lg
+                  hover:scale-110 hover:opacity-90 transition-all duration-200"
+      >
+        ↑
+      </button>
+    )}
     </main>
   );
 }
