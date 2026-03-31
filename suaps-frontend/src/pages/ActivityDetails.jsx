@@ -221,7 +221,7 @@ export default function ActivityDetails() {
         )}
 
         {!loading && !err && activity && (
-          <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 ">
             {/* Main card */}
             <div className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white/75 p-6 shadow-sm backdrop-blur-md">
               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -311,11 +311,11 @@ export default function ActivityDetails() {
             </div>
 
             {/* Side card */}
-            <aside className="rounded-3xl border border-slate-200 bg-white/75 p-6 shadow-sm backdrop-blur-md">
-              <h3 className="text-base font-extrabold text-slate-900">Moniteurs</h3>
+            <aside className="lg:col-span-2 rounded-3xl border border-slate-200 bg-white/75 p-6 shadow-sm backdrop-blur-md">
+              <h3 className="text-center text-base font-extrabold text-slate-900">Moniteurs</h3>
 
                 {Array.isArray(activity.moniteurs) && activity.moniteurs.length > 0 ? (
-                  <ul className="mt-2 text-sm text-slate-600 space-y-1">
+                  <ul className="mt-2 text-center text-sm text-slate-600 space-y-1">
                     {activity.moniteurs.map((m) => (
                       <li key={m.id}>
                         {`${m.user?.prenom ?? ""} ${m.user?.nom ?? ""}`.trim()}
@@ -329,16 +329,16 @@ export default function ActivityDetails() {
               {(isMoniteur || isSuaps) && (
                 <>
                 <div className="mt-6 h-px bg-slate-200" />
-                  <h3 className="mt-6 text-base font-extrabold text-slate-900">Inscriptions</h3>
-                  <p className="mt-2 text-sm text-slate-600">
+                  <h3 className="mt-6 text-center text-base font-extrabold text-slate-900">Inscriptions</h3>
+                  <p className="mt-2 text-center text-sm text-slate-600">
                     Total inscriptions:{" "}
                     <span className="font-extrabold text-slate-900">
                       {Array.isArray(activity.inscriptions) ? activity.inscriptions.length : 0}
                     </span>
                   </p>
 
-                  <h3 className="mt-6 text-base font-extrabold text-slate-900">Évaluations</h3>
-                  <p className="mt-2 text-sm text-slate-600">
+                  <h3 className="mt-6 text-center text-base font-extrabold text-slate-900">Évaluations</h3>
+                  <p className="mt-2 text-center text-sm text-slate-600">
                     Total évaluations:{" "}
                     <span className="font-extrabold text-slate-900">
                       {Array.isArray(activity.evaluations) ? activity.evaluations.length : 0}
